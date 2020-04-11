@@ -9,3 +9,6 @@ Kosiorek, Adam Roman and Sabour, Sara and Teh, Yee Whye and Hinton, Geoffrey Eve
 Adam Kosiorek, 2019.
 
 [3] **Stacked Capsule Autoencoders GitHub Repository.** ([online](https://github.com/google-research/google-research/tree/master/stacked_capsule_autoencoders))
+
+[4] **Understanding Hinton’s Capsule Networks. Part I: Intuition.** ([online](https://medium.com/ai%C2%B3-theory-practice-business/understanding-hintons-capsule-networks-part-i-intuition-b4b559d1159b))  
+Max Pechyonkin, 2017. AI³ | Theory, Practice, Business.
