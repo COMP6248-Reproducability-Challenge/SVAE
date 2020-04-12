@@ -1,6 +1,36 @@
 # Reproducibility Challenge - Stacked Capsule Autoencoders
 
+## Getting Started
+
+The experiments were run in `Python 3.7`.
+
+```powershell
+# Clone the repository.
+git clone https://github.com/yannidd/reproducibility.git
+
+# (Optional) Create a new Python environment and activate it.
+# Windows:
+python -m venv .env
+.env\Scripts\activate.bat
+# Unix or MacOS:
+python3 -m venv .env
+source .env/bin/activate
+
+# Install the dependencies.
+# Windows:
+pip install -r requirements.txt
+# Unix or MacOS:
+pip3 install -r requirements.txt
+```
+
+## Useful Repositories
+
+- Official Stacked Capsule Autoencoders repository - [github](https://github.com/google-research/google-research/tree/master/stacked_capsule_autoencoders)
+- Official set transformer implementation - [github](https://github.com/juho-lee/set_transformer)
+
 ## Useful Theory
+
+A quick recap on some useful theory that is mentioned in the paper.
 
 ### Similarity Transform
 
@@ -16,9 +46,15 @@ Change `t_x` and `t_y` for translation, `a` for scaling and `theta` for rotation
     <img src=".res/eq_similarity_transform.svg">
 </p>
 
+### Set Transformer
+
+Extremely briefly: A set transformer [7] takes as an input a variable length set of tensors, and transforms it to a constant shape tensor. The output is permutation invariant.
+
+The toy example provided in the paper might help in understanding what a set transformer does. The example follows: Given a set with an arbitrary length of real numbers `{x_1, ..., x_n}`, return `max({x_1, ..., x_n})`.
+
 ## Further Reading
 
-A good start to understand Capsule Networks is [4] - a series of 4 blog posts. If the Stacked Capsule Autoencoder paper [1] seems too technical, [2] provides a high level overview of the approach.
+A good start to understand Capsule Networks is [4] - a series of 4 blog posts. If the Stacked Capsule Autoencoder paper [1] seems too technical, [2] provides a high level overview of the approach. Knowledge of set transformers [7] is required to understand the paper.
 
 ## References
 
@@ -37,3 +73,6 @@ Max Pechyonkin, 2017. AI³ | Theory, Practice, Business.
 
 [6] **Geometric Transformations** ([online](https://courses.cs.washington.edu/courses/csep576/11sp/pdf/Transformations.pdf))  
 Larry Zitnick.
+
+[7] **Set Transformer: A Framework for Attention-based Permutation-Invariant Neural Networks** ([online](https://arxiv.org/pdf/1810.00825.pdf))  
+Juho Lee, Yoonho Lee, Jungtaek Kim, Adam R. Kosiorek, Seungjin Choi, Yee Whye Teh, 2019.
