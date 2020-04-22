@@ -3,6 +3,7 @@ import torch
 import torch.utils.data
 from torch import nn
 from torch.nn import functional as F
+import pytorch_lightning as pl
 
 
 def make_normalized_grid(width, height):
@@ -25,7 +26,7 @@ def make_normalized_grid(width, height):
   return grid
 
 
-class SpatialVAE(nn.Module):
+class SpatialVAE(pl.LightningModule):
 
   activations = {
       'relu': nn.ReLU(),

@@ -2,4 +2,9 @@
 .virtual_documents/
 __pycache__/
 .vscode/
+.idea/
 .env/
+src/data
+src/models/__pycache__
+src/notebooks/.ipynb_checkpoints
+
