@@ -271,34 +271,33 @@ class SpatialVAE(nn.Module):
         reconstruction_loss = F.binary_cross_entropy(
             reconstruction, x.view(reconstruction.shape), reduction="sum"
         )
-        error += reconstruction_loss
+        error += reconstruction_loss.unsqueeze(0)
         # Implementation based of Kingma and Welling (2014)
         # compare the KL Divergence for the unconstrained latent variables
         kl_d_unconstrained = -0.5 * torch.sum(
             1 + (2 * logstd[:, :-3])
             - mu[:, :-3].pow(2)
-            - (2 * logstd[:, :-3]).exp()
-        )
-        error += kl_d_unconstrained
+            - (2 * logstd[:, :-3]).exp())
+        error += kl_d_unconstrained.unsqueeze(0)
 
         # calculate KL Divergence for translation variables
         if self.has_translation:
             kl_d_translation = -0.5 * torch.sum(
                 1 + (2 * logstd[:, -2:])
                 - mu[:, -2:].pow(2)
-                - (2 * logstd[:, -2:]).exp()
-            )
-            error += kl_d_translation
+                - (2 * logstd[:, -2:]).exp())
+            error += kl_d_translation.unsqueeze(0)
 
         # Custom equation defined in Spatial VAE (Bepler et al) (2019)
         # Calculate KL Divergence for rotation variable
         # -0.5 - logstd + log_sigma
         if self.has_rotation:
-            kl_d_rotation = (
+            kl_d_rotation = torch.sum(
                 -0.5
                 - logstd[:, -3] + torch.log(thetasigma)
-                + (2 * logstd[:, -2:]).exp() / (2 * thetasigma.pow(2))
+                + (2 * logstd[:, -3]).exp()
+                / (2 * thetasigma.pow(2))
             )
-            error += kl_d_rotation
+            error += kl_d_rotation.unsqueeze(0)
 
         return error
