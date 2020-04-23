@@ -20,8 +20,7 @@ def make_normalized_grid(width, height):
   x = np.linspace(-1, 1, width)
   y = np.linspace(-1, 1, height)
   xv, yv = np.meshgrid(x, y)
-  ones = np.ones(
-    (width, height))  # Helper dim. Makes linear transform easier.
+  ones = np.ones((width, height))  # Helper dim. Makes linear transform easier.
   grid = np.stack((xv, yv, ones), axis=2)
   grid = torch.from_numpy(grid).float()
   return grid
@@ -29,9 +28,9 @@ def make_normalized_grid(width, height):
 
 class SpatialVAE(pl.LightningModule):
   activations = {
-    'relu': nn.ReLU(),
-    'sigmoid': nn.Sigmoid(),
-    'tanh': nn.Tanh(),
+      'relu': nn.ReLU(),
+      'sigmoid': nn.Sigmoid(),
+      'tanh': nn.Tanh(),
   }
 
   def __init__(self,
@@ -61,23 +60,23 @@ class SpatialVAE(pl.LightningModule):
 
     self.activation = self.activations[activation]
     self.n_inputs_encoder = width * height * n_channels
-    self.n_outputs_encoder = 2 * (n_unconstrained + has_rotation +
-                                  2 * has_translation)
+    self.n_outputs_encoder = 2 * (
+        n_unconstrained + has_rotation + 2 * has_translation)
     self.n_inputs_decoder = n_unconstrained + 2
 
     self.grid_coords = make_normalized_grid(width, height)
 
     # TODO: Change number of layers dynamically.
     self.encoder = nn.Sequential(
-      nn.Linear(self.n_inputs_encoder, n_hidden_units),
-      self.activation,
-      nn.Linear(n_hidden_units, self.n_outputs_encoder),
+        nn.Linear(self.n_inputs_encoder, n_hidden_units),
+        self.activation,
+        nn.Linear(n_hidden_units, self.n_outputs_encoder),
     )
     self.decoder = nn.Sequential(
-      nn.Linear(self.n_inputs_decoder, n_hidden_units),
-      self.activation,
-      nn.Linear(n_hidden_units, n_channels),
-      nn.Sigmoid(),
+        nn.Linear(self.n_inputs_decoder, n_hidden_units),
+        self.activation,
+        nn.Linear(n_hidden_units, n_channels),
+        nn.Sigmoid(),
     )
 
   def encode(self, x):
@@ -177,8 +176,7 @@ class SpatialVAE(pl.LightningModule):
     # Transform the coordinates that go into the model. Coords shape will be
     # [batch_size, width, height, 2]
     transforms = transforms.view(batch_size, 1, 3, 3)
-    coords = (
-                     coords @ transforms)[:, :, :, :2]  # Remove the helper dimensions.
+    coords = (coords @ transforms)[:, :, :, :2]  # Remove the helper dimensions.
 
     # Reshape the data, so it can go in the decoder (one coordinate at a time).
     coords = coords.view(batch_size * width * height, 2)
