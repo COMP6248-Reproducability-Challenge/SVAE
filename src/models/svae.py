@@ -238,7 +238,7 @@ class SpatialVAE(nn.Module):
 
         return reconstruction, mu, logstd
 
-    def loss(self, x, reconstruction, mu, logstd, thetasigma):
+    def loss(self, x, reconstruction, mu, logstd, sigma):
         """Loss function
 
     Sums the reconstruction loss with the individual KL divergences of
@@ -257,8 +257,8 @@ class SpatialVAE(nn.Module):
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Standard
       deviations of unconstrained latent variables, theta (optional), and
       delta_x (optional).
-    thetasigma: torch.tensor
-      A single value tensor. It is standard deviation of the prior on rotation.
+    sigma: torch.tensor
+      A single value tensor. Standard deviation of the prior on rotation.
       A good value would be pi as a large value result in an uniform prior.
 
 
@@ -268,9 +268,8 @@ class SpatialVAE(nn.Module):
     """
         error = torch.tensor([0.0], dtype=torch.float32)
         # Compare the two images
-        reconstruction_loss = F.binary_cross_entropy(
-            reconstruction, x.view(reconstruction.shape), reduction="sum"
-        )
+        reconstruction_loss = F.binary_cross_entropy_with_logits(
+          reconstruction, x, reduction="sum")
         error += reconstruction_loss.unsqueeze(0)
         # Implementation based of Kingma and Welling (2014)
         # compare the KL Divergence for the unconstrained latent variables
@@ -290,13 +289,13 @@ class SpatialVAE(nn.Module):
 
         # Custom equation defined in Spatial VAE (Bepler et al) (2019)
         # Calculate KL Divergence for rotation variable
-        # -0.5 - logstd + log_sigma
+        # -0.5 - logstd + log_sigma + var/(2*sigma^2)
         if self.has_rotation:
             kl_d_rotation = torch.sum(
                 -0.5
-                - logstd[:, -3] + torch.log(thetasigma)
+                - logstd[:, -3] + torch.log(sigma)
                 + (2 * logstd[:, -3]).exp()
-                / (2 * thetasigma.pow(2))
+                / (2 * sigma.pow(2))
             )
             error += kl_d_rotation.unsqueeze(0)
 
