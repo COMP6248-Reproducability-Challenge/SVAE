@@ -5,6 +5,7 @@ from src.models.svae import SpatialVAE
 
 import torch
 import torchvision
+from livelossplot import PlotLosses
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
@@ -34,6 +35,9 @@ class Model(SpatialVAE):
     self.dataset = dataset
     self.pi = torch.tensor(np.pi).float().unsqueeze(0)
     self.epoch = 0
+    groups = {'Real Time Loss Plot': ['Training Loss', 'Validation Loss']}
+    self.liveloss = PlotLosses(groups=groups)
+    self.logs = {}
 
   def prepare_data(self):
     """
@@ -86,6 +90,7 @@ class Model(SpatialVAE):
     been accordingly reshaped in order to take into account for the
     3 input channels (instead of one as with the MNIST datasets.
     """
+    logs = {}
     if self.dataset == 'Galaxy_Zoo':
       x = batch.view(batch.shape[0], 3, batch.shape[1], batch.shape[2])
     else:
@@ -96,8 +101,7 @@ class Model(SpatialVAE):
     tqdm_dict = {'train_loss': loss_train}
     output = OrderedDict({
       'loss': loss_train,
-      'progress_bar': tqdm_dict,
-      #'log': tqdm_dict
+      'progress_bar': tqdm_dict
     })
     return output
 
@@ -135,6 +139,7 @@ class Model(SpatialVAE):
       'end_train_loss': train_loss_mean,
       'step': self.epoch
     }
+    self.logs['Training Loss'] = train_loss_mean.item()
     return {'log': result}
 
   def validation_epoch_end(self, outputs):
@@ -150,7 +155,10 @@ class Model(SpatialVAE):
       'end_val_loss': val_loss_mean,
       'step': self.epoch
     }
+    self.logs['Validation Loss'] = val_loss_mean.item()
     return {'log': result}
 
   def on_epoch_end(self):
     self.epoch += 1
+    self.liveloss.update(self.logs)
+    self.liveloss.send()

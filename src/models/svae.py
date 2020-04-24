@@ -3,8 +3,8 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.utils.data
-from torch.nn import functional as F
 from torch import nn
+from torch.nn import functional as F
 
 
 def make_normalized_grid(width, height):
