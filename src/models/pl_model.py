@@ -33,6 +33,7 @@ class Model(SpatialVAE):
                      has_translation=True,
                      activation='tanh')
     self.dataset = dataset
+    self.epoch = 0
 
   def prepare_data(self):
     """
@@ -104,7 +105,7 @@ class Model(SpatialVAE):
     output = OrderedDict({
       'loss': loss_train,
       'progress_bar': tqdm_dict,
-      'log': tqdm_dict
+      #'log': tqdm_dict
     })
     return output
 
@@ -126,18 +127,29 @@ class Model(SpatialVAE):
     reconstruction, mu, logstd = self.forward(x)
     loss_val = self.loss(reconstruction, x, mu, logstd)
     tqdm_dict = {'val_loss': loss_val}
-    output = OrderedDict({
+    output2 = OrderedDict({
       'val_loss': loss_val,
       'progress_bar': tqdm_dict,
-      'log': tqdm_dict
+      #'log': tqdm_dict
     })
-    return output
+    return output2
+
+  def training_epoch_end(self, outputs):
+    train_loss_mean = 0
+    for output in outputs:
+      train_loss = output['loss']
+      if self.trainer.use_dp or self.trainer.use_ddp2:
+        train_loss = torch.mean(train_loss)
+      train_loss_mean += train_loss
+
+    train_loss_mean /= len(outputs)
+    result = {
+      'end_train_loss': train_loss_mean,
+      'step': self.epoch
+    }
+    return {'log': result}
 
   def validation_epoch_end(self, outputs):
-    """
-    Logging at the end of each validation step the overall loss
-    registred for the current epoch.
-    """
     val_loss_mean = 0
     for output in outputs:
       val_loss = output['val_loss']
@@ -146,10 +158,11 @@ class Model(SpatialVAE):
       val_loss_mean += val_loss
 
     val_loss_mean /= len(outputs)
-    tqdm_dict = {'val_loss': val_loss_mean}
     result = {
-      'progress_bar': tqdm_dict,
-      'log': tqdm_dict,
-      'val_loss': val_loss_mean
+      'end_val_loss': val_loss_mean,
+      'step': self.epoch
     }
-    return result
+    return {'log': result}
+
+  def on_epoch_end(self):
+    self.epoch +=1
