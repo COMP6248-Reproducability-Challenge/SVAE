@@ -21,9 +21,6 @@ source .env/bin/activate
 pip install -r requirements.txt
 # Unix or MacOS:
 pip3 install -r requirements.txt
-
-# Windows Torch and Torchvision installation.
-pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 ## Spatial-VAE

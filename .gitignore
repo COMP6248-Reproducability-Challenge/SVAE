@@ -6,5 +6,6 @@ __pycache__/
 .env/
 src/data
 src/models/__pycache__
+src/models/log/
 src/notebooks/.ipynb_checkpoints
 

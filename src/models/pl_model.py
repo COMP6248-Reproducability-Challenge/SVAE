@@ -5,7 +5,6 @@ from src.models.svae import SpatialVAE
 
 import torch
 import torchvision
-from torch.nn import functional as F
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
@@ -33,6 +32,7 @@ class Model(SpatialVAE):
                      has_translation=True,
                      activation='tanh')
     self.dataset = dataset
+    self.pi = torch.tensor(np.pi).float().unsqueeze(0)
     self.epoch = 0
 
   def prepare_data(self):
@@ -72,16 +72,11 @@ class Model(SpatialVAE):
   def configure_optimizers(self):
     return Adam(self.parameters(), lr=1e-3)
 
-  def loss(self, recon_x, x_or, mu, log_var):
-    """
-    TO UPDATE with new KL Divergence and ELBO implementation
-    """
-    BCE = F.binary_cross_entropy(recon_x, x_or, reduction='sum')
-    KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-    return BCE + KLD
-
   def train_dataloader(self):
     return DataLoader(self.train_dataset, batch_size=100)
+
+  def val_dataloader(self):
+    return DataLoader(self.val_dataset, batch_size=100)
 
   def training_step(self, batch, batch_idx):
     """
@@ -90,16 +85,13 @@ class Model(SpatialVAE):
     When using the Galaxy_Zoo dataset, the batch size shape has
     been accordingly reshaped in order to take into account for the
     3 input channels (instead of one as with the MNIST datasets.
-
-    At this stage, the stored loss is then used in order to created metrics
-    plots in Tensorboard (with the use of a callback when fitting the model).
     """
     if self.dataset == 'Galaxy_Zoo':
       x = batch.view(batch.shape[0], 3, batch.shape[1], batch.shape[2])
     else:
       x = batch.view(batch.shape[0], 1, batch.shape[1], batch.shape[2])
     reconstruction, mu, logstd = self.forward(x)
-    loss_train = self.loss(reconstruction, x, mu, logstd)
+    loss_train = self.loss(x, reconstruction, mu, logstd, self.pi)
     # adding logging
     tqdm_dict = {'train_loss': loss_train}
     output = OrderedDict({
@@ -108,9 +100,6 @@ class Model(SpatialVAE):
       #'log': tqdm_dict
     })
     return output
-
-  def val_dataloader(self):
-    return DataLoader(self.val_dataset, batch_size=100)
 
   def validation_step(self, batch, batch_idx):
     """
@@ -125,14 +114,13 @@ class Model(SpatialVAE):
     else:
       x = batch.view(batch.shape[0], 1, batch.shape[1], batch.shape[2])
     reconstruction, mu, logstd = self.forward(x)
-    loss_val = self.loss(reconstruction, x, mu, logstd)
+    loss_val = self.loss(x, reconstruction, mu, logstd, self.pi)
     tqdm_dict = {'val_loss': loss_val}
-    output2 = OrderedDict({
+    output = OrderedDict({
       'val_loss': loss_val,
-      'progress_bar': tqdm_dict,
-      #'log': tqdm_dict
+      'progress_bar': tqdm_dict
     })
-    return output2
+    return output
 
   def training_epoch_end(self, outputs):
     train_loss_mean = 0
@@ -165,4 +153,4 @@ class Model(SpatialVAE):
     return {'log': result}
 
   def on_epoch_end(self):
-    self.epoch +=1
+    self.epoch += 1
