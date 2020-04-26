@@ -45,29 +45,29 @@ class Model(SpatialVAE):
     """
     if self.dataset == 'MNIST':
       transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
-      mnist_train = torchvision.datasets.MNIST('src/data/mnist/',
+      mnist_train = torchvision.datasets.MNIST('../../src/data/mnist/',
                                                 train=True,
                                                 download=True,
                                                 transform=transform).data.float()
-      mnist_val = torchvision.datasets.MNIST('src/data/mnist/',
+      mnist_val = torchvision.datasets.MNIST('../../src/data/mnist/',
                                               train=False,
                                               download=True,
                                               transform=transform).data.float()
       self.train_dataset = mnist_train
       self.val_dataset = mnist_val
     elif self.dataset == 'MNIST_Rotated':
-      mnist_train = torch.Tensor(np.load('src/data/mnist_rotated/images_train.npy'))
-      mnist_val = torch.Tensor(np.load('src/data/mnist_rotated/images_test.npy'))
+      mnist_train = torch.Tensor(np.load('../../src/data/mnist_rotated/images_train.npy'))
+      mnist_val = torch.Tensor(np.load('../../src/data/mnist_rotated/images_test.npy'))
       self.train_dataset = mnist_train
       self.val_dataset = mnist_val
     elif self.dataset == 'MNIST_Translated':
-      mnist_train = torch.Tensor(np.load('src/data/mnist_rotated_translated/images_train.npy'))
-      mnist_val = torch.Tensor(np.load('src/data/mnist_rotated_translated/images_test.npy'))
+      mnist_train = torch.Tensor(np.load('../../src/data/mnist_rotated_translated/images_train.npy'))
+      mnist_val = torch.Tensor(np.load('../../src/data/mnist_rotated_translated/images_test.npy'))
       self.train_dataset = mnist_train
       self.val_dataset = mnist_val
     elif self.dataset == 'Galaxy_Zoo':
-      mnist_train = torch.Tensor(np.load('src/data/galaxy_zoo/galaxy_zoo_train.npy'))
-      mnist_val = torch.Tensor(np.load('src/data/galaxy_zoo/galaxy_zoo_test.npy'))
+      mnist_train = torch.Tensor(np.load('../../src/data/galaxy_zoo/galaxy_zoo_train.npy'))
+      mnist_val = torch.Tensor(np.load('../../src/data/galaxy_zoo/galaxy_zoo_test.npy'))
       self.train_dataset = mnist_train
       self.val_dataset = mnist_val
     else:
