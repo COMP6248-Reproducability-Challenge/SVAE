@@ -259,12 +259,10 @@ class SpatialVAE(nn.Module):
     loss: torch.tensor
       The overall loss [overall_loss].
     """
-    error = torch.tensor([0.0], dtype=torch.float32)
+    kl_divergence = torch.tensor(0.0, dtype=torch.float32)
     # Compare the two images
-    reconstruction_loss = F.binary_cross_entropy_with_logits(reconstruction,
-                                                             x,
-                                                             reduction="sum")
-    error += reconstruction_loss.unsqueeze(0)
+    reconstruction_loss = -F.binary_cross_entropy_with_logits(
+        reconstruction, x, reduction="sum")
 
     # Custom equation defined in Spatial VAE (Bepler et al) (2019)
     # Calculate KL Divergence for rotation variable
@@ -273,9 +271,10 @@ class SpatialVAE(nn.Module):
       theta_std = logstd[:, :1]
       logstd = logstd[:, 1:]
       mu = mu[:, 1:]
+      theta_var = 2 * theta_std  #  using log power rule log(x^2) == 2*log(x)
       kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
-                                (2 * theta_std).exp() / (2 * sigma.pow(2)))
-      error += kl_d_rotation.unsqueeze(0)
+                                (theta_var).exp() / (2 * sigma.pow(2)))
+      kl_divergence += kl_d_rotation
 
     # Implementation based of Kingma and Welling (2014)
     # calculate KL Divergence for translation variables
@@ -284,13 +283,15 @@ class SpatialVAE(nn.Module):
       logstd = logstd[:, 2:]
       t_mu = mu[:, :2]
       mu = mu[:, 2:]
-      kl_d_translation = -0.5 * torch.sum(1 + (2 * t_std) - t_mu.pow(2) -
-                                          (2 * t_std).exp())
-      error += kl_d_translation.unsqueeze(0)
+      t_var = 2 * t_std
+      kl_d_translation = -0.5 * torch.sum(1 + (t_var) - t_mu.pow(2) -
+                                          (t_var).exp())
+      kl_divergence += kl_d_translation
 
     # compare the KL Divergence for the unconstrained latent variables
-    kl_d_unconstrained = -0.5 * torch.sum(1 + (2 * logstd) - mu.pow(2) -
-                                          (2 * logstd).exp())
-    error += kl_d_unconstrained.unsqueeze(0)
+    log_var = 2 * logstd
+    kl_d_unconstrained = -0.5 * torch.sum(1 + (log_var) - mu.pow(2) -
+                                          (log_var).exp())
+    kl_divergence += kl_d_unconstrained
 
-    return error
+    return kl_divergence + reconstruction_loss
