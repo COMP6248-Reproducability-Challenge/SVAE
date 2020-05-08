@@ -262,7 +262,7 @@ class SpatialVAE(nn.Module):
     kl_divergence = torch.tensor(0.0, dtype=torch.float32)
     # Compare the two images
     reconstruction_loss = -F.binary_cross_entropy_with_logits(
-        reconstruction, x, reduction="mean") * x.size(0)
+        reconstruction, x, reduction="sum")
     # Custom equation defined in Spatial VAE (Bepler et al) (2019)
     # Calculate KL Divergence for rotation variable
     # -0.5 - logstd + log_sigma + var/(2*sigma^2)
