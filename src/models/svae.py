@@ -259,37 +259,48 @@ class SpatialVAE(pl.LightningModule):
       The overall loss [overall_loss].
     """
     kl_divergence = torch.tensor(0.0, dtype=torch.float32)
-    # Compare the two images
-    reconstruction_loss = -F.binary_cross_entropy_with_logits(
-        reconstruction, x, reduction="sum")
+    # Compare the two images, no logits as already present in model
+    size = x.size(1) * 3
+    print(size)
+    reconstruction_loss = -F.binary_cross_entropy(reconstruction, x) * size
+    # temp remove before uncommenting rotation and translation
+    logstd = logstd[:, 1:]
+    mu = mu[:, 1:]
+    logstd = logstd[:, 2:]
+    mu = mu[:, 2:]
+
     # Custom equation defined in Spatial VAE (Bepler et al) (2019)
     # Calculate KL Divergence for rotation variable
     # -0.5 - logstd + log_sigma + var/(2*sigma^2)
-    if self.has_rotation:
-      theta_std = logstd[:, :1]
-      logstd = logstd[:, 1:]
-      mu = mu[:, 1:]
-      theta_var = 2 * theta_std  #  using log power rule log(x^2) == 2*log(x)
-      kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
-                                (theta_var).exp() / (2 * sigma.pow(2)))
-      kl_divergence += kl_d_rotation
-      print(kl_d_rotation)
+    # if self.has_rotation:
+    #   theta_std = logstd[:, :1]
+    #   logstd = logstd[:, 1:]
+    #   mu = mu[:, 1:]
+    #   theta_var = 2 * theta_std  #  using log power rule log(x^2) == 2*log(x)
+    #   kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
+    #                             (theta_var).exp() / (2 * sigma.pow(2)))
+    #   kl_divergence += kl_d_rotation
+    #   print(kl_d_rotation)
     # Implementation based of Kingma and Welling (2014)
     # calculate KL Divergence for translation variables
-    if self.has_translation:
-      t_std = logstd[:, :2]
-      logstd = logstd[:, 2:]
-      t_mu = mu[:, :2]
-      mu = mu[:, 2:]
-      t_var = 2 * t_std
-      kl_d_translation = -0.5 * torch.sum(1 + (t_var) - t_mu.pow(2) -
-                                          (t_var).exp())
-      kl_divergence += kl_d_translation
+    # if self.has_translation:
+    #   t_std = logstd[:, :2]
+    #   logstd = logstd[:, 2:]
+    #   t_mu = mu[:, :2]
+    #   mu = mu[:, 2:]
+    #   t_var = 2 * t_std
+    #   kl_d_translation = -0.5 * torch.sum(1 + (t_var) - t_mu.pow(2) -
+    #                                       (t_var).exp())
+    #   kl_divergence += kl_d_translation
 
-    # compare the KL Divergence for the unconstrained latent variables
+    # compare the KL Divergence for the unconstrained latent variables (MINE)
     log_var = 2 * logstd
-    kl_d_unconstrained = -0.5 * torch.sum(1 + (log_var) - mu.pow(2) -
-                                          (log_var).exp())
+    kl_d_unconstrained = -0.5 * torch.mean(1 + (log_var) - mu.pow(2) -
+                                           (log_var).exp())
+    # (THEIRS)
+    # kl_d_unconstrained = -logstd + 0.5 * torch.exp(
+    #     logstd)**2 + 0.5 * mu**2 - 0.5
+    # kl_d_unconstrained = torch.mean(torch.sum(kl_d_unconstrained, 1))
     kl_divergence += kl_d_unconstrained
-
-    return kl_divergence + reconstruction_loss
+    print("-------------->", kl_d_unconstrained)
+    return reconstruction_loss - kl_divergence
