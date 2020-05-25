@@ -1,4 +1,6 @@
 import numpy as np
+
+import pytorch_lightning as pl
 import torch
 import torch.utils.data
 from torch import nn
@@ -25,8 +27,7 @@ def make_normalized_grid(width, height):
   return grid
 
 
-class SpatialVAE(nn.Module):
-
+class SpatialVAE(pl.LightningModule):
   activations = {
       "relu": nn.ReLU(),
       "sigmoid": nn.Sigmoid(),
@@ -253,8 +254,6 @@ class SpatialVAE(nn.Module):
     sigma: torch.tensor
       A single value tensor. Standard deviation of the prior on rotation.
       A good value would be pi as a large value result in an uniform prior.
-
-
     Returns:
     loss: torch.tensor
       The overall loss [overall_loss].
