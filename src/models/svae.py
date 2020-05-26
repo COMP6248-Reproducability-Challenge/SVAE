@@ -262,11 +262,6 @@ class SpatialVAE(pl.LightningModule):
     # Compare the two images, no logits as already present in model
     size = x.size(1) * x.size(3) * x.size(2)
     reconstruction_loss = F.binary_cross_entropy(reconstruction, x) * size
-    # temp remove before uncommenting rotation and translation
-    # logstd = logstd[:, 1:]
-    # mu = mu[:, 1:]
-    # logstd = logstd[:, 2:]
-    # mu = mu[:, 2:]
 
     # Custom equation defined in Spatial VAE (Bepler et al) (2019)
     # Calculate KL Divergence for rotation variable
@@ -276,10 +271,14 @@ class SpatialVAE(pl.LightningModule):
       logstd = logstd[:, 1:]
       mu = mu[:, 1:]
       theta_var = 2 * theta_std  #  using log power rule log(x^2) == 2*log(x)
-      kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
-                                (theta_var).exp() / (2 * sigma.pow(2)))
+      # kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
+      #                           (theta_var).exp() / (2 * sigma.pow(2)))
+      kl_d_rotation = -0.5 - theta_std + torch.log(
+          sigma) + (theta_var).exp() / (2 * sigma.pow(2))
+      kl_d_rotation = torch.mean(torch.sum(kl_d_rotation, 1))
       kl_divergence += kl_d_rotation
       print("ROT", kl_d_rotation)
+
     # Implementation based of Kingma and Welling (2014)
     # calculate KL Divergence for translation variables
     if self.has_translation:
@@ -287,19 +286,13 @@ class SpatialVAE(pl.LightningModule):
       logstd = logstd[:, 2:]
       t_mu = mu[:, :2]
       mu = mu[:, 2:]
-      # t_var = 2 * t_std
-      # kl_d_translation = -0.5 * torch.mean(1 + (t_var) - t_mu.pow(2) -
-      #                                      (t_var).exp())
       kl_d_translation = -t_std + 0.5 * torch.exp(
           t_std)**2 + 0.5 * t_mu**2 - 0.5
       kl_d_translation = torch.mean(torch.sum(kl_d_translation, 1))
       kl_divergence += kl_d_translation
       print("TRANSL", kl_d_translation)
-    # compare the KL Divergence for the unconstrained latent variables (OURS)
-    # log_var = 2 * logstd
-    # kl_d_unconstrained = -0.5 * torch.mean(1 + (log_var) - mu.pow(2) -
-    #                                        (log_var).exp())
-    # (THEIRS)
+
+    # Unconstrained KLDIV
     kl_d_unconstrained = -logstd + 0.5 * torch.exp(
         logstd)**2 + 0.5 * mu**2 - 0.5
     kl_d_unconstrained = torch.mean(torch.sum(kl_d_unconstrained, 1))
