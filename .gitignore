@@ -8,4 +8,4 @@ src/data
 src/models/__pycache__
 src/log
 src/notebooks/.ipynb_checkpoints
-
+lightning_logs
