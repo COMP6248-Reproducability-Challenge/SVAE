@@ -19,7 +19,7 @@ def make_normalized_grid(width, height):
     Shape [width, height, 3].
   """
   x = np.linspace(-1, 1, width)
-  y = np.linspace(-1, 1, height)
+  y = np.linspace(1, -1, height)
   xv, yv = np.meshgrid(x, y)
   ones = np.ones((width, height))  # Helper dim. Makes linear transform easier.
   grid = np.stack((xv, yv, ones), axis=2)
@@ -260,47 +260,49 @@ class SpatialVAE(pl.LightningModule):
     """
     kl_divergence = torch.tensor(0.0, dtype=torch.float32)
     # Compare the two images, no logits as already present in model
-    size = x.size(1) * 3
-    print(size)
-    reconstruction_loss = -F.binary_cross_entropy(reconstruction, x) * size
+    size = x.size(1) * x.size(3) * x.size(2)
+    reconstruction_loss = F.binary_cross_entropy(reconstruction, x) * size
     # temp remove before uncommenting rotation and translation
-    logstd = logstd[:, 1:]
-    mu = mu[:, 1:]
-    logstd = logstd[:, 2:]
-    mu = mu[:, 2:]
+    # logstd = logstd[:, 1:]
+    # mu = mu[:, 1:]
+    # logstd = logstd[:, 2:]
+    # mu = mu[:, 2:]
 
     # Custom equation defined in Spatial VAE (Bepler et al) (2019)
     # Calculate KL Divergence for rotation variable
-    # -0.5 - logstd + log_sigma + var/(2*sigma^2)
-    # if self.has_rotation:
-    #   theta_std = logstd[:, :1]
-    #   logstd = logstd[:, 1:]
-    #   mu = mu[:, 1:]
-    #   theta_var = 2 * theta_std  #  using log power rule log(x^2) == 2*log(x)
-    #   kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
-    #                             (theta_var).exp() / (2 * sigma.pow(2)))
-    #   kl_divergence += kl_d_rotation
-    #   print(kl_d_rotation)
+    # pseudo -0.5 - logstd + log_sigma + var/(2*sigma^2)
+    if self.has_rotation:
+      theta_std = logstd[:, :1]
+      logstd = logstd[:, 1:]
+      mu = mu[:, 1:]
+      theta_var = 2 * theta_std  #  using log power rule log(x^2) == 2*log(x)
+      kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
+                                (theta_var).exp() / (2 * sigma.pow(2)))
+      kl_divergence += kl_d_rotation
+      print("ROT", kl_d_rotation)
     # Implementation based of Kingma and Welling (2014)
     # calculate KL Divergence for translation variables
-    # if self.has_translation:
-    #   t_std = logstd[:, :2]
-    #   logstd = logstd[:, 2:]
-    #   t_mu = mu[:, :2]
-    #   mu = mu[:, 2:]
-    #   t_var = 2 * t_std
-    #   kl_d_translation = -0.5 * torch.sum(1 + (t_var) - t_mu.pow(2) -
-    #                                       (t_var).exp())
-    #   kl_divergence += kl_d_translation
-
-    # compare the KL Divergence for the unconstrained latent variables (MINE)
-    log_var = 2 * logstd
-    kl_d_unconstrained = -0.5 * torch.mean(1 + (log_var) - mu.pow(2) -
-                                           (log_var).exp())
+    if self.has_translation:
+      t_std = logstd[:, :2]
+      logstd = logstd[:, 2:]
+      t_mu = mu[:, :2]
+      mu = mu[:, 2:]
+      # t_var = 2 * t_std
+      # kl_d_translation = -0.5 * torch.mean(1 + (t_var) - t_mu.pow(2) -
+      #                                      (t_var).exp())
+      kl_d_translation = -t_std + 0.5 * torch.exp(
+          t_std)**2 + 0.5 * t_mu**2 - 0.5
+      kl_d_translation = torch.mean(torch.sum(kl_d_translation, 1))
+      kl_divergence += kl_d_translation
+      print("TRANSL", kl_d_translation)
+    # compare the KL Divergence for the unconstrained latent variables (OURS)
+    # log_var = 2 * logstd
+    # kl_d_unconstrained = -0.5 * torch.mean(1 + (log_var) - mu.pow(2) -
+    #                                        (log_var).exp())
     # (THEIRS)
-    # kl_d_unconstrained = -logstd + 0.5 * torch.exp(
-    #     logstd)**2 + 0.5 * mu**2 - 0.5
-    # kl_d_unconstrained = torch.mean(torch.sum(kl_d_unconstrained, 1))
+    kl_d_unconstrained = -logstd + 0.5 * torch.exp(
+        logstd)**2 + 0.5 * mu**2 - 0.5
+    kl_d_unconstrained = torch.mean(torch.sum(kl_d_unconstrained, 1))
     kl_divergence += kl_d_unconstrained
-    print("-------------->", kl_d_unconstrained)
-    return reconstruction_loss - kl_divergence
+    elbo = reconstruction_loss - kl_divergence
+    return elbo

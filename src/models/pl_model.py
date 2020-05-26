@@ -44,34 +44,44 @@ class Model(SpatialVAE):
     Loading the desired dataset as prompted by the user
     """
     if self.dataset == 'MNIST':
-      transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
-      mnist_train = torchvision.datasets.MNIST('../../src/data/mnist/',
-                                                train=True,
-                                                download=True,
-                                                transform=transform).data.float()
+      transform = torchvision.transforms.Compose(
+          [torchvision.transforms.ToTensor()])
+      mnist_train = torchvision.datasets.MNIST(
+          '../../src/data/mnist/',
+          train=True,
+          download=True,
+          transform=transform).data.float()
       mnist_val = torchvision.datasets.MNIST('../../src/data/mnist/',
-                                              train=False,
-                                              download=True,
-                                              transform=transform).data.float()
-      self.train_dataset = mnist_train
-      self.val_dataset = mnist_val
+                                             train=False,
+                                             download=True,
+                                             transform=transform).data.float()
+      self.train_dataset = mnist_train / 255.0
+      self.val_dataset = mnist_val / 255.0
     elif self.dataset == 'MNIST_Rotated':
-      mnist_train = torch.Tensor(np.load('../../src/data/mnist_rotated/images_train.npy'))
-      mnist_val = torch.Tensor(np.load('../../src/data/mnist_rotated/images_test.npy'))
-      self.train_dataset = mnist_train
-      self.val_dataset = mnist_val
+      mnist_train = torch.Tensor(
+          np.load('../../src/data/mnist_rotated/images_train.npy'))
+      mnist_val = torch.Tensor(
+          np.load('../../src/data/mnist_rotated/images_test.npy'))
+      self.train_dataset = mnist_train / 255.0
+      self.val_dataset = mnist_val / 255.0
     elif self.dataset == 'MNIST_Translated':
-      mnist_train = torch.Tensor(np.load('../../src/data/mnist_rotated_translated/images_train.npy'))
-      mnist_val = torch.Tensor(np.load('../../src/data/mnist_rotated_translated/images_test.npy'))
-      self.train_dataset = mnist_train
-      self.val_dataset = mnist_val
+      mnist_train = torch.Tensor(
+          np.load('../../src/data/mnist_rotated_translated/images_train.npy'))
+      mnist_val = torch.Tensor(
+          np.load('../../src/data/mnist_rotated_translated/images_test.npy'))
+      self.train_dataset = mnist_train / 255.0
+      self.val_dataset = mnist_val / 255.0
     elif self.dataset == 'Galaxy_Zoo':
-      mnist_train = torch.Tensor(np.load('../../src/data/galaxy_zoo/galaxy_zoo_train.npy'))
-      mnist_val = torch.Tensor(np.load('../../src/data/galaxy_zoo/galaxy_zoo_test.npy'))
-      self.train_dataset = mnist_train
-      self.val_dataset = mnist_val
+      mnist_train = torch.Tensor(
+          np.load('../../src/data/galaxy_zoo/galaxy_zoo_train.npy'))
+      mnist_val = torch.Tensor(
+          np.load('../../src/data/galaxy_zoo/galaxy_zoo_test.npy'))
+      self.train_dataset = mnist_train / 255.0
+      self.val_dataset = mnist_val / 255.0
     else:
-      print("Please choose between the available datasets: MNIST, MNIST_Rotated, MNIST_Translated and Galaxy_Zoo")
+      print(
+          "Please choose between the available datasets: MNIST, MNIST_Rotated, MNIST_Translated and Galaxy_Zoo"
+      )
 
   def configure_optimizers(self):
     return Adam(self.parameters(), lr=1e-3)
@@ -99,10 +109,7 @@ class Model(SpatialVAE):
     loss_train = self.loss(x, reconstruction, mu, logstd, self.pi)
     # adding logging
     tqdm_dict = {'train_loss': loss_train}
-    output = OrderedDict({
-      'loss': loss_train,
-      'progress_bar': tqdm_dict
-    })
+    output = OrderedDict({'loss': loss_train, 'progress_bar': tqdm_dict})
     return output
 
   def validation_step(self, batch, batch_idx):
@@ -120,10 +127,7 @@ class Model(SpatialVAE):
     reconstruction, mu, logstd = self.forward(x)
     loss_val = self.loss(x, reconstruction, mu, logstd, self.pi)
     tqdm_dict = {'val_loss': loss_val}
-    output = OrderedDict({
-      'val_loss': loss_val,
-      'progress_bar': tqdm_dict
-    })
+    output = OrderedDict({'val_loss': loss_val, 'progress_bar': tqdm_dict})
     return output
 
   def training_epoch_end(self, outputs):
@@ -135,10 +139,7 @@ class Model(SpatialVAE):
       train_loss_mean += train_loss
 
     train_loss_mean /= len(outputs)
-    result = {
-      'end_train_loss': train_loss_mean,
-      'step': self.epoch
-    }
+    result = {'end_train_loss': train_loss_mean, 'step': self.epoch}
     self.logs['Training Loss'] = train_loss_mean.item()
     return {'log': result}
 
@@ -151,10 +152,7 @@ class Model(SpatialVAE):
       val_loss_mean += val_loss
 
     val_loss_mean /= len(outputs)
-    result = {
-      'end_val_loss': val_loss_mean,
-      'step': self.epoch
-    }
+    result = {'end_val_loss': val_loss_mean, 'step': self.epoch}
     self.logs['Validation Loss'] = val_loss_mean.item()
     return {'log': result}
 
