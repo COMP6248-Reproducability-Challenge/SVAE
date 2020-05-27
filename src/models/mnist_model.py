@@ -25,7 +25,7 @@ class MnistModel(SpatialVAE):
 
   def prepare_data(self):
     if self.dataset not in os.listdir('data'):
-      tar = tarfile.open(f'data/{self.dataset}', 'r:gz')
+      tar = tarfile.open(f'data/{self.dataset}.tar.xz', 'r:xz')
       tar.extractall('data')
       tar.close()
 
