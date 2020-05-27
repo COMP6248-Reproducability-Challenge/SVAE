@@ -34,7 +34,16 @@ def main():
 
   if not os.path.exists('models'):
     os.makedirs('models')
-  torch.save(model.state_dict(), f'models/{args.dataset}_svae{int(not args.no_rotation)}{int(not args.no_translation)}_{args.n_unconstrained}.pt')
+
+  # Save model weights and loss curves.
+  model_name = f'{args.dataset}_svae{int(not args.no_rotation)}{int(not args.no_translation)}_{args.n_unconstrained}'
+  torch.save(model.state_dict(), f'models/{model_name}.pt')
+  with open(f'models/{model_name}.csv', 'w') as f:
+    log = model.log
+    f.write(','.join(log.keys()))
+    f.write('\n')
+    values = list(log.values())
+    f.writelines([f'{values[0][i]},{values[1][i]}\n' for i in range(len(values[0]))])
 
 
 if __name__ == '__main__':
