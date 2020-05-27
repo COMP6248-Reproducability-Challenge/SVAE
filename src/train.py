@@ -1,4 +1,5 @@
 import argparse
+import math
 import os
 
 import pytorch_lightning as pl
@@ -16,6 +17,8 @@ def main():
   parser.add_argument('--no_rotation', action='store_true', help='Disable latent variabels for rotation.')
   parser.add_argument('--no_translation', action='store_true', help='Disable latent variabels for translation.')
   parser.add_argument('--n_epochs', type=int, default=200, help='Number of epochs to train for.')
+  parser.add_argument('--delta_x_prior', type=float, default=0.1, help='Standard deviation of translation latent variables')
+  parser.add_argument('--theta_prior', type=float, default=math.pi / 4, help='Standard deviation on rotation prior')
   args = parser.parse_args()
 
   model = MnistModel(dataset=args.dataset,
@@ -25,6 +28,8 @@ def main():
                      n_hidden_units=args.n_hidden_units,
                      n_hidden=args.n_hidden,
                      n_unconstrained=args.n_unconstrained,
+                     delta_x_prior=args.delta_x_prior,
+                     theta_prior=args.theta_prior,
                      has_rotation=not args.no_rotation,
                      has_translation=not args.no_translation)
 

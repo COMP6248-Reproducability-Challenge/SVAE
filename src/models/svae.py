@@ -35,6 +35,8 @@ class SpatialVAE(pl.LightningModule):
                n_hidden_units,
                n_hidden,
                n_unconstrained,
+               delta_x_prior,
+               theta_prior,
                has_rotation=True,
                has_translation=True,
                activation=nn.Tanh()):
@@ -54,6 +56,8 @@ class SpatialVAE(pl.LightningModule):
     self.n_hidden = n_hidden
     self.n_unconstrained = n_unconstrained
     self.has_rotation = has_rotation
+    self.delta_x_prior = torch.tensor(delta_x_prior, dtype=torch.float)
+    self.theta_prior = torch.tensor(theta_prior, dtype=torch.float)
     self.has_translation = has_translation
     self.activation = activation
     
@@ -155,6 +159,7 @@ class SpatialVAE(pl.LightningModule):
     n_channels = self.n_channels
     width = self.width
     height = self.height
+    theta_prior = self.theta_prior
 
     # Transformation matrices applied to the normalized grid coordinates
     # in each batch. Shape [batch_size, n_cols=3, n_rows=3].
@@ -172,12 +177,12 @@ class SpatialVAE(pl.LightningModule):
       z = z[:, 1:]
       # Update the transformation matrices.
       transforms[:, 0, 0] = torch.cos(theta)
-      transforms[:, 1, 0] = -torch.sin(theta)
       transforms[:, 0, 1] = torch.sin(theta)
+      transforms[:, 1, 0] = -torch.sin(theta)
       transforms[:, 1, 1] = torch.cos(theta)
     if self.has_translation:
       # Extract delta_x from z.
-      delta_x = z[:, :2]
+      delta_x = z[:, :2] * theta_prior  # Scale delta_x by prior.
       z = z[:, 2:]
       # Update the transformation matrices.
       transforms[:, 2, :2] = delta_x
@@ -238,7 +243,7 @@ class SpatialVAE(pl.LightningModule):
 
     return reconstruction, mu, logvar
 
-  def loss(self, x, reconstruction, mu, logvar, sigma_theta):
+  def loss(self, x, reconstruction, mu, logvar):
     """Loss function.
     Sums the reconstruction loss with the individual KL divergences of
     the latent variables. The KL divergence is custom for rotation and
@@ -263,6 +268,7 @@ class SpatialVAE(pl.LightningModule):
     loss: torch.tensor
       The overall loss [overall_loss].
     """
+    theta_prior = self.theta_prior
     batch_size = x.shape[0]
     reconstruction_loss = F.binary_cross_entropy(
         reconstruction, x, reduction='sum') / batch_size
@@ -277,9 +283,9 @@ class SpatialVAE(pl.LightningModule):
       logvar_theta, logvar = logvar[:, :1], logvar[:, 1:]
       logstd_theta = 0.5 * logvar_theta
 
-      kl_div_theta = (-0.5 - logstd_theta + torch.log(sigma_theta) +
+      kl_div_theta = (-0.5 - logstd_theta + torch.log(theta_prior) +
                       (logvar_theta.exp() + mu_theta**2) /
-                      (2 * sigma_theta**2)).sum(1)
+                      (2 * theta_prior**2)).sum(1)
       kl_div += kl_div_theta
 
     # Implementation based of Kingma and Welling (2014)

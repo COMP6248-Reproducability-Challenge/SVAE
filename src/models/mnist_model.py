@@ -12,7 +12,6 @@ class MnistModel(SpatialVAE):
 
   def __init__(self,
                dataset='mnist',
-               sigma_theta=torch.tensor(math.pi),
                **kwargs):
     super().__init__(**kwargs)
     if dataset in {'mnist', 'mnist_rotated', 'mnist_rotated_translated'}:
@@ -20,7 +19,6 @@ class MnistModel(SpatialVAE):
     else:
       raise KeyError('Dataset should be one of mnist, mnist_rotated, '
                      'mnist_rotated_translated')
-    self.sigma_theta = sigma_theta
     self.log = {'training': [], 'test': []}
     self.should_log = False
 
@@ -46,14 +44,14 @@ class MnistModel(SpatialVAE):
     batch_size, width, height = batch.shape
     batch = batch.view(batch_size, 1, width, height)
     reconstruction, mu, logvar = self.forward(batch)
-    loss = self.loss(batch, reconstruction, mu, logvar, self.sigma_theta)
+    loss = self.loss(batch, reconstruction, mu, logvar)
     return {'loss': loss, 'running_loss': loss.item() * batch_size}
 
   def validation_step(self, batch, batch_idx):
     batch_size, width, height = batch.shape
     batch = batch.view(batch_size, 1, width, height)
     reconstruction, mu, logvar = self.forward(batch)
-    loss = self.loss(batch, reconstruction, mu, logvar, self.sigma_theta)
+    loss = self.loss(batch, reconstruction, mu, logvar)
     return {'val_loss': loss, 'running_loss': loss.item() * batch_size}
 
   def training_epoch_end(self, outputs):
