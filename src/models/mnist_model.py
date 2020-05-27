@@ -60,7 +60,7 @@ class MnistModel(SpatialVAE):
     loss = sum([output['running_loss'] for output in outputs]) / len(
         self.training_data)
     if self.should_log:
-      self.log['test'].append(loss)
+      self.log['training'].append(loss)
     return {'loss': loss}
 
   def validation_epoch_end(self, outputs):
