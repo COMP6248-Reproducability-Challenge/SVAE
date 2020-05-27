@@ -46,22 +46,23 @@ class MnistModel(SpatialVAE):
     batch = batch.view(batch_size, 1, width, height)
     reconstruction, mu, logvar = self.forward(batch)
     loss = self.loss(batch, reconstruction, mu, logvar, self.sigma_theta)
-    return {'loss': loss}
+    return {'loss': loss, 'running_loss': loss.item() * batch_size}
 
   def validation_step(self, batch, batch_idx):
     batch_size, width, height = batch.shape
     batch = batch.view(batch_size, 1, width, height)
     reconstruction, mu, logvar = self.forward(batch)
     loss = self.loss(batch, reconstruction, mu, logvar, self.sigma_theta)
-    return {'val_loss': loss}
+    return {'val_loss': loss, 'running_loss': loss.item() * batch_size}
 
   def training_epoch_end(self, outputs):
-    loss = sum([output['loss'] for output in outputs]) / len(self.training_data)
-    self.log['training'].append(loss.item())
+    loss = sum([output['running_loss'] for output in outputs]) / len(
+        self.training_data)
+    self.log['training'].append(loss)
     return {'loss': loss}
 
   def validation_epoch_end(self, outputs):
-    loss = sum([output['val_loss'] for output in outputs]) / len(self.test_data)
-    self.log['test'].append(loss.item())
+    loss = sum([output['running_loss'] for output in outputs]) / len(
+        self.test_data)
+    self.log['test'].append(loss)
     return {'val_loss': loss}
-

@@ -36,13 +36,13 @@ def main():
                        gpus=int(torch.cuda.is_available()))
   trainer.fit(model)
 
-  if not os.path.exists('models'):
-    os.makedirs('models')
+  if not os.path.exists('model_logs'):
+    os.makedirs('model_logs')
 
   # Save model weights and loss curves.
   model_name = f'{args.dataset}_svae{int(not args.no_rotation)}{int(not args.no_translation)}_{args.n_unconstrained}'
-  torch.save(model.state_dict(), f'models/{model_name}.pt')
-  with open(f'models/{model_name}.csv', 'w') as f:
+  torch.save(model.state_dict(), f'model_logs/{model_name}.pt')
+  with open(f'model_logs/{model_name}.csv', 'w') as f:
     log = model.log
     f.write(','.join(log.keys()))
     f.write('\n')
