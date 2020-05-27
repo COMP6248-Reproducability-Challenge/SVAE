@@ -281,7 +281,6 @@ class SpatialVAE(pl.LightningModule):
                       (logvar_theta.exp() + mu_theta**2) /
                       (2 * sigma_theta**2)).sum(1)
       kl_div += kl_div_theta
-      print(f'theta: {kl_div.mean()}')
 
     # Implementation based of Kingma and Welling (2014)
     # calculate KL Divergence for translation variables
@@ -295,7 +294,6 @@ class SpatialVAE(pl.LightningModule):
 
     kl_div_z = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1)
     kl_div += kl_div_z
-    print(f'total: {kl_div.mean()}')
 
     elbo = reconstruction_loss + kl_div.mean()
     return elbo
