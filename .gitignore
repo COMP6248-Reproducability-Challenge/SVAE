@@ -2,4 +2,9 @@
 .virtual_documents/
 __pycache__/
 .vscode/
+.idea/
 .env/
+data/*/
+log/
+lightning_logs/
+tmp/
