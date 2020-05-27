@@ -18,7 +18,7 @@ def main():
   parser.add_argument('--n_epochs', type=int, default=200, help='Number of epochs to train for.')
   args = parser.parse_args()
 
-  model = MnistModel(dataset='mnist',
+  model = MnistModel(dataset=args.dataset,
                      width=28,
                      height=28,
                      n_channels=1,
