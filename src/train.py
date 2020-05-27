@@ -29,7 +29,11 @@ def main():
                      has_rotation=not args.no_rotation,
                      has_translation=not args.no_translation)
 
-  trainer = pl.Trainer(max_epochs=args.n_epochs, gpus=int(torch.cuda.is_available()))
+  trainer = pl.Trainer(max_epochs=args.n_epochs,
+                       checkpoint_callback=False,
+                       logger=False,
+                       early_stop_callback=False,
+                       gpus=int(torch.cuda.is_available()))
   trainer.fit(model)
 
   if not os.path.exists('models'):
@@ -43,7 +47,8 @@ def main():
     f.write(','.join(log.keys()))
     f.write('\n')
     values = list(log.values())
-    f.writelines([f'{values[0][i]},{values[1][i]}\n' for i in range(len(values[0]))])
+    f.writelines(
+        [f'{values[0][i]},{values[1][i]}\n' for i in range(len(values[0]))])
 
 
 if __name__ == '__main__':
