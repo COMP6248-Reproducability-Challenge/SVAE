@@ -15,11 +15,10 @@ def main():
                      has_rotation=True,
                      has_translation=True)
 
-  trainer = pl.Trainer(
-      train_percent_check=1,
-      val_percent_check=1,
-      max_epochs=4,
-  )  # pt.trainer(gpus=1) in order to use GPU instead of CPU
+  trainer = pl.Trainer(train_percent_check=1,
+                       val_percent_check=1,
+                       max_epochs=4,
+                       gpus=int(torch.cuda.is_available()))
   trainer.fit(model)
 
 
