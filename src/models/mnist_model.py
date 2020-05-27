@@ -22,6 +22,7 @@ class MnistModel(SpatialVAE):
                      'mnist_rotated_translated')
     self.sigma_theta = sigma_theta
     self.log = {'training': [], 'test': []}
+    self.should_log = False
 
   def prepare_data(self):
     if self.dataset not in os.listdir('data'):
@@ -58,11 +59,19 @@ class MnistModel(SpatialVAE):
   def training_epoch_end(self, outputs):
     loss = sum([output['running_loss'] for output in outputs]) / len(
         self.training_data)
-    self.log['training'].append(loss)
+    if self.should_log:
+      self.log['test'].append(loss)
     return {'loss': loss}
 
   def validation_epoch_end(self, outputs):
     loss = sum([output['running_loss'] for output in outputs]) / len(
         self.test_data)
-    self.log['test'].append(loss)
+    if self.should_log:
+      self.log['test'].append(loss)
     return {'val_loss': loss}
+
+  def on_train_start(self):
+    self.should_log = True
+
+  def on_train_end(self):
+    self.should_log = False

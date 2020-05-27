@@ -18,7 +18,6 @@ def main():
   parser.add_argument('--n_epochs', type=int, default=200, help='Number of epochs to train for.')
   args = parser.parse_args()
 
-
   model = MnistModel(dataset='mnist',
                      width=28,
                      height=28,
@@ -36,10 +35,10 @@ def main():
                        gpus=int(torch.cuda.is_available()))
   trainer.fit(model)
 
+  # Save model weights and loss curves.
   if not os.path.exists('model_logs'):
     os.makedirs('model_logs')
 
-  # Save model weights and loss curves.
   model_name = f'{args.dataset}_svae{int(not args.no_rotation)}{int(not args.no_translation)}_{args.n_unconstrained}'
   torch.save(model.state_dict(), f'model_logs/{model_name}.pt')
   with open(f'model_logs/{model_name}.csv', 'w') as f:
