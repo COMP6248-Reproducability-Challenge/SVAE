@@ -4,6 +4,7 @@ __pycache__/
 .vscode/
 .idea/
 .env/
-data/
+data/*/
 log/
 lightning_logs/
+tmp/

@@ -1,5 +1,4 @@
 import numpy as np
-
 import pytorch_lightning as pl
 import torch
 import torch.utils.data
@@ -19,7 +18,7 @@ def make_normalized_grid(width, height):
     Shape [width, height, 3].
   """
   x = np.linspace(-1, 1, width)
-  y = np.linspace(-1, 1, height)
+  y = np.linspace(1, -1, height)
   xv, yv = np.meshgrid(x, y)
   ones = np.ones((width, height))  # Helper dim. Makes linear transform easier.
   grid = np.stack((xv, yv, ones), axis=2)
@@ -28,22 +27,17 @@ def make_normalized_grid(width, height):
 
 
 class SpatialVAE(pl.LightningModule):
-  activations = {
-      'relu': nn.ReLU(),
-      'sigmoid': nn.Sigmoid(),
-      'tanh': nn.Tanh(),
-  }
 
   def __init__(self,
                width,
                height,
                n_channels,
                n_hidden_units,
-               n_layers,
+               n_hidden,
                n_unconstrained,
                has_rotation=True,
                has_translation=True,
-               activation='tanh'):
+               activation=nn.Tanh()):
     """
     Args:
     n_uncostrained: int
@@ -56,29 +50,44 @@ class SpatialVAE(pl.LightningModule):
     self.width = width
     self.height = height
     self.n_channels = n_channels
+    self.n_hidden_units = n_hidden_units
+    self.n_hidden = n_hidden
+    self.n_unconstrained = n_unconstrained
     self.has_rotation = has_rotation
     self.has_translation = has_translation
-
-    self.activation = self.activations[activation]
+    self.activation = activation
+    
     self.n_inputs_encoder = width * height * n_channels
-    self.n_outputs_encoder = 2 * (
-        n_unconstrained + has_rotation + 2 * has_translation)
+    self.n_outputs_encoder = 2 * (n_unconstrained + has_rotation +
+                                  2 * has_translation)
     self.n_inputs_decoder = n_unconstrained + 2
 
     self.grid_coords = make_normalized_grid(width, height)
 
-    # TODO: Change number of layers dynamically.
-    self.encoder = nn.Sequential(
-        nn.Linear(self.n_inputs_encoder, n_hidden_units),
-        self.activation,
-        nn.Linear(n_hidden_units, self.n_outputs_encoder),
-    )
-    self.decoder = nn.Sequential(
-        nn.Linear(self.n_inputs_decoder, n_hidden_units),
-        self.activation,
-        nn.Linear(n_hidden_units, n_channels),
-        nn.Sigmoid(),
-    )
+    encoder_layers = []
+    # Input layer.
+    encoder_layers.append(nn.Linear(self.n_inputs_encoder, n_hidden_units))
+    encoder_layers.append(self.activation)
+    # Hidden layers.
+    for _ in range(n_hidden):
+      encoder_layers.append(nn.Linear(n_hidden_units, n_hidden_units))
+      encoder_layers.append(self.activation)
+    # Output layer.
+    encoder_layers.append(nn.Linear(n_hidden_units, self.n_outputs_encoder))
+    self.encoder = nn.Sequential(*encoder_layers)
+
+    decoder_layers = []
+    # Input layer.
+    decoder_layers.append(nn.Linear(self.n_inputs_decoder, n_hidden_units))
+    decoder_layers.append(self.activation)
+    # Hidden layers.
+    for _ in range(n_hidden):
+      decoder_layers.append(nn.Linear(n_hidden_units, n_hidden_units))
+      decoder_layers.append(self.activation)
+    # Output layer.
+    decoder_layers.append(nn.Linear(n_hidden_units, n_channels))
+    decoder_layers.append(nn.Sigmoid())
+    self.decoder = nn.Sequential(*decoder_layers)
 
   def encode(self, x):
     """Spatial-VAE encoder.
@@ -91,7 +100,7 @@ class SpatialVAE(pl.LightningModule):
     mu: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Means of
       uncostrained latent variables, theta (optional), and delta_x (optional)
-    logstd: torch.tensor
+    logvar: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Standard
       deviations of uncostrained latent variables, theta (optional), and delta_x
       (optional).
@@ -101,20 +110,20 @@ class SpatialVAE(pl.LightningModule):
 
     # split it into a tuple with 2 tensors of shape [batch_size,
     # self.n_outputs_encoder / 2]
-    mu, logstd = encoded.split(self.n_outputs_encoder // 2, 1)
+    mu, logvar = encoded.split(self.n_outputs_encoder // 2, 1)
 
-    return mu, logstd
+    return mu, logvar
 
-  def sample(self, mu, logstd):
-    """Sample from a normal distribution N(mu, logstd**2)
+  def sample(self, mu, logvar):
+    """Sample from a normal distribution N(mu, exp(logvar))
 
     Args:
     mu: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Means of
       uncostrained latent variables, theta (optional), and delta_x (optional)
-    logstd: torch.tensor
-      A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Standard
-      deviations of uncostrained latent variables, theta (optional), and delta_x
+    logvar: torch.tensor
+      A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Log variance
+      of uncostrained latent variables, theta (optional), and delta_x
       (optional).
 
     Returns:
@@ -122,8 +131,7 @@ class SpatialVAE(pl.LightningModule):
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Uncostrained
       latent variables, theta (optional), and delta_x (optional).
     """
-    # TODO: Check if this is the correct way to sample.
-    std = torch.exp(0.5 * logstd)
+    std = torch.exp(0.5 * logvar)
     eps = torch.randn_like(std)
     return mu + eps * std
 
@@ -208,7 +216,7 @@ class SpatialVAE(pl.LightningModule):
     mu: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Means of
       uncostrained latent variables, theta (optional), and delta_x (optional)
-    logstd: torch.tensor
+    logvar: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Standard
       deviations of uncostrained latent variables, theta (optional), and delta_x
       (optional)
@@ -222,16 +230,16 @@ class SpatialVAE(pl.LightningModule):
     x = x.view(batch_size, n_inputs_encoder)
 
     # Encode.
-    mu, logstd = self.encode(x)
+    mu, logvar = self.encode(x)
     # Sample.
-    z = self.sample(mu, logstd)
+    z = self.sample(mu, logvar)
     # Decode.
     reconstruction = self.decode(z)
 
-    return reconstruction, mu, logstd
+    return reconstruction, mu, logvar
 
-  def loss(self, x, reconstruction, mu, logstd, sigma):
-    """Loss function
+  def loss(self, x, reconstruction, mu, logvar, sigma_theta):
+    """Loss function.
     Sums the reconstruction loss with the individual KL divergences of
     the latent variables. The KL divergence is custom for rotation and
     translation transformations.
@@ -243,7 +251,7 @@ class SpatialVAE(pl.LightningModule):
     mu: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Means of
       unconstrained latent variables, theta (optional), and delta_x (optional)
-    logstd: torch.tensor
+    logvar: torch.tensor
       A tensor of shape [batch_size, self.n_outputs_encoder / 2]. Standard
       deviations of unconstrained latent variables, theta (optional), and
       delta_x (optional).
@@ -254,38 +262,39 @@ class SpatialVAE(pl.LightningModule):
     loss: torch.tensor
       The overall loss [overall_loss].
     """
-    error = torch.tensor([0.0], dtype=torch.float32)
-    # Compare the two images
-    reconstruction_loss = F.binary_cross_entropy_with_logits(reconstruction,
-                                                             x,
-                                                             reduction="sum")
-    error += reconstruction_loss.unsqueeze(0)
+    batch_size = x.shape[0]
+    reconstruction_loss = F.binary_cross_entropy(
+        reconstruction, x, reduction='sum') / batch_size
 
+    kl_div = 0
     # Custom equation defined in Spatial VAE (Bepler et al) (2019)
     # Calculate KL Divergence for rotation variable
-    # -0.5 - logstd + log_sigma + var/(2*sigma^2)
+    # pseudo -0.5 - logvar + log_sigma + var/(2*sigma^2)
     if self.has_rotation:
-      theta_std = logstd[:, :1]
-      logstd = logstd[:, 1:]
-      mu = mu[:, 1:]
-      kl_d_rotation = torch.sum(-0.5 - theta_std + torch.log(sigma) +
-                                (2 * theta_std).exp() / (2 * sigma.pow(2)))
-      error += kl_d_rotation.unsqueeze(0)
+      # Extract mu and logvar for theta from z.
+      mu_theta, mu = mu[:, :1], mu[:, 1:]
+      logvar_theta, logvar = logvar[:, :1], logvar[:, 1:]
+      logstd_theta = 0.5 * logvar_theta
+
+      kl_div_theta = (-0.5 - logstd_theta + torch.log(sigma_theta) +
+                      (logvar_theta.exp() + mu_theta**2) /
+                      (2 * sigma_theta**2)).sum(1)
+      kl_div += kl_div_theta
+      print(f'theta: {kl_div.mean()}')
 
     # Implementation based of Kingma and Welling (2014)
     # calculate KL Divergence for translation variables
     if self.has_translation:
-      t_std = logstd[:, :2]
-      logstd = logstd[:, 2:]
-      t_mu = mu[:, :2]
-      mu = mu[:, 2:]
-      kl_d_translation = -0.5 * torch.sum(1 + (2 * t_std) - t_mu.pow(2) -
-                                          (2 * t_std).exp())
-      error += kl_d_translation.unsqueeze(0)
+      mu_delta_x, mu = mu[:, :2], mu[:, 2:]
+      logvar_delta_x, logvar = logvar[:, :2], logvar[:, 2:]
 
-    # compare the KL Divergence for the unconstrained latent variables
-    kl_d_unconstrained = -0.5 * torch.sum(1 + (2 * logstd) - mu.pow(2) -
-                                          (2 * logstd).exp())
-    error += kl_d_unconstrained.unsqueeze(0)
+      kl_div_delta_x = -0.5 * (1 + logvar_delta_x - mu_delta_x.pow(2) -
+                               logvar_delta_x.exp()).sum(1)
+      kl_div += kl_div_delta_x
 
-    return error
+    kl_div_z = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1)
+    kl_div += kl_div_z
+    print(f'total: {kl_div.mean()}')
+
+    elbo = reconstruction_loss + kl_div.mean()
+    return elbo
