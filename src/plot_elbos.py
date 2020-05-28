@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 # plt.rcParams.update({'font.size': 4})
@@ -44,7 +43,7 @@ def main():
   fig.subplots_adjust(hspace=0.18,
                       wspace=0.04,)
   fig.savefig('plots/elbos.pdf')
-  # plt.show()
+  plt.show()
 
 
 if __name__ == '__main__':
