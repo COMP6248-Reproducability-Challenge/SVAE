@@ -5,14 +5,12 @@ import tarfile
 import torch
 from torch.utils.data import DataLoader
 
-from src.models.svae import SpatialVAE
+from src.models.vvae import VanillaVAE
 
 
-class MnistModel(SpatialVAE):
+class MnistModel(VanillaVAE):
 
-  def __init__(self,
-               dataset='mnist',
-               **kwargs):
+  def __init__(self, dataset='mnist', **kwargs):
     super().__init__(**kwargs)
     if dataset in {'mnist', 'mnist_rotated', 'mnist_rotated_translated'}:
       self.dataset = dataset
