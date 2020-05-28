@@ -9,7 +9,13 @@ from torch.nn import functional as F
 
 class VanillaVAE(pl.LightningModule):
 
-  def __init__(self, width, height, n_channels, n_hidden_units, n_latent):
+  def __init__(self,
+               width,
+               height,
+               n_channels,
+               n_hidden_units,
+               n_latent,
+               activation=nn.Tanh()):
 
     super().__init__()
 
@@ -17,25 +23,31 @@ class VanillaVAE(pl.LightningModule):
     self.height = height
     self.n_channels = n_channels
 
-    self.activation = self.activations[activation]
+    self.activation = activation
     self.n_inputs_encoder = width * height * n_channels
-    self.fc1 = nn.Linear(n_inputs_encoder, n_hidden_units)
-    self.fc21 = nn.Linear(n_hidden_units, n_latent)
-    self.fc22 = nn.Linear(n_hidden_units, n_latent)
-    self.fc3 = nn.Linear(n_latent, n_hidden_units)
-    self.fc4 = nn.Linear(n_hidden_units, n_hidden_units)
+    self.f_enc_input = nn.Linear(self.n_inputs_encoder, n_hidden_units)
+    self.f_enc_mu = nn.Linear(n_hidden_units, n_latent)
+    self.f_enc_logvar = nn.Linear(n_hidden_units, n_latent)
+    self.f_dec_input = nn.Linear(n_latent, n_hidden_units)
+    self.f_dec_output = nn.Linear(n_hidden_units, self.n_inputs_encoder)
 
   def encode(self, x):
-    h1 = F.relu(self.fc1(x))
-    return self.fc21(h1), self.fc22(h1)
+    h1 = self.activation(self.f_enc_input(x))
+    return self.f_enc_mu(h1), self.f_enc_logvar(h1)
 
-  def decode(self, x):
-    h3 = F.relu(self.fc3(z))
-    return torch.sigmoid(self.fc4(h3))
+  def decode(self, z):
+    batch_size = z.shape[0]
+    n_channels = self.n_channels
+    width = self.width
+    height = self.height
+    h3 = self.activation(self.f_dec_input(z))
+    return torch.sigmoid(self.f_dec_output(h3)).view(batch_size, n_channels,
+                                                     width, height)
 
-  def sample(self, mu, log_sigma2):
-    eps = torch.randn(mu.shape[0], mu.shape[1])
-    return mu + torch.exp(log_sigma2 / 2) * eps
+  def sample(self, mu, logvar):
+    std = torch.exp(0.5 * logvar)
+    eps = torch.randn_like(std)
+    return mu + eps * std
 
   def forward(self, x):
     batch_size = x.shape[0]
@@ -46,17 +58,17 @@ class VanillaVAE(pl.LightningModule):
     x = x.view(batch_size, n_inputs_encoder)
 
     # Encode.
-    mu, logstd = self.encode(x)
+    mu, logvar = self.encode(x)
     # Sample.
-    z = self.sample(mu, logstd)
+    z = self.sample(mu, logvar)
     # Decode.
     reconstruction = self.decode(z)
 
-    return reconstruction, mu, logstd
+    return reconstruction, mu, logvar
 
-  def loss(self, x, reconstruction, mu, log_sigma2, sigma):
+  def loss(self, x, reconstruction, mu, logvar):
     recon = F.binary_cross_entropy(reconstruction, x,
                                    reduction='sum') / x.shape[0]
-    kl = -0.5 * torch.mean(1 + log_sigma2 - mu.pow(2) - log_sigma2.exp())
-    loss = recon + kl
+    kl = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(1)
+    loss = recon + kl.mean()
     return loss
