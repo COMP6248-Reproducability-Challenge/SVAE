@@ -1,9 +1,12 @@
-import matplotlib.pyplot as plt
-import torch
-import numpy as np
 import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 from torchvision.utils import save_image
+
 from models.svae import SpatialVAE
+from models.vvae import VanillaVAE
 
 
 def make_manifold(model, filename, lim=2, extra_z=False):
@@ -32,16 +35,26 @@ def main():
   datasets = ['mnist', 'mnist_rotated', 'mnist_rotated_translated']
 
   for dataset in datasets:
-    model = SpatialVAE(width=28, height=28, n_channels=1, n_hidden_units=500, n_hidden=1, n_unconstrained=2, delta_x_prior=1.4, theta_prior=0.7853981634, has_rotation=True, has_translation=True)
+    delta_x_prior = 0 if dataset == 'mnist' else 1.4
+    theta_prior = 0.3926990817 if dataset == 'mnist' else 0.7853981634
+    model = SpatialVAE(width=28, height=28, n_channels=1, n_hidden_units=500, n_hidden=1, n_unconstrained=2, delta_x_prior=delta_x_prior, theta_prior=theta_prior, has_rotation=True, has_translation=True)
     model.load_state_dict(torch.load(f'model_logs/{dataset}_svae11_2.pt', map_location=torch.device('cpu')))
     model.eval()
     make_manifold(model, f'{dataset}_svae11_2', 1, True)
 
   for dataset in datasets:
-    model = SpatialVAE(width=28, height=28, n_channels=1, n_hidden_units=500, n_hidden=1, n_unconstrained=2, delta_x_prior=1.4, theta_prior=0.7853981634, has_rotation=False, has_translation=False)
+    delta_x_prior = 0 if dataset == 'mnist' else 1.4
+    theta_prior = 0.3926990817 if dataset == 'mnist' else 0.7853981634
+    model = SpatialVAE(width=28, height=28, n_channels=1, n_hidden_units=500, n_hidden=1, n_unconstrained=2, delta_x_prior=delta_x_prior, theta_prior=theta_prior, has_rotation=False, has_translation=False)
     model.load_state_dict(torch.load(f'model_logs/{dataset}_svae00_2.pt', map_location=torch.device('cpu')))
     model.eval()
     make_manifold(model, f'{dataset}_svae00_2', 1)
+
+  for dataset in datasets:
+    model = VanillaVAE(width=28, height=28, n_channels=1, n_hidden_units=500, n_hidden=1, n_unconstrained=2)
+    model.load_state_dict(torch.load(f'model_logs/{dataset}_vvae_2.pt', map_location=torch.device('cpu')))
+    model.eval()
+    make_manifold(model, f'{dataset}_vvae_2', 1)
 
 if __name__ == '__main__':
   main()
