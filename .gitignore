@@ -4,8 +4,7 @@ __pycache__/
 .vscode/
 .idea/
 .env/
-src/data
-src/models/__pycache__
-src/log
-src/notebooks/.ipynb_checkpoints
-lightning_logs
+data/*/
+log/
+lightning_logs/
+tmp/
