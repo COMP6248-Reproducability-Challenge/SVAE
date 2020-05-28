@@ -3,13 +3,14 @@ import torch
 from src.models.onnx import SpatialVaeEncoder, SpatialVaeDecoder
 
 def main():
-  trained = torch.load('model_logs/mnist_rotated_translated_svae11_2.pt', map_location=torch.device('cpu'))
+  # trained = torch.load('model_logs/mnist_rotated_translated_svae11_2.pt', map_location=torch.device('cpu'))
+  trained = torch.load('model_logs/mnist_svae11_2.pt', map_location=torch.device('cpu'))
 
   encoder = SpatialVaeEncoder()
   encoder_trained = {k: v for k, v in trained.items() if k in encoder.state_dict()}
   encoder.load_state_dict(encoder_trained)
   encoder.eval()
-  dummy_input = torch.zeros(28, 28)
+  dummy_input = torch.zeros(280 * 280 * 4)
   torch.onnx.export(encoder, dummy_input, 'onnx/svae_encoder.onnx', verbose=True)
 
 

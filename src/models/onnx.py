@@ -20,7 +20,12 @@ class SpatialVaeEncoder(nn.Module):
     )
 
   def forward(self, x):
-    print(self.encoder(x.view(1, 784)))
+    x = x.reshape(280, 280, 4)
+    x = torch.narrow(x, dim=2, start=3, length=1)
+    x = x.reshape(1, 1, 280, 280)
+    x = F.avg_pool2d(x, 10, stride=10, ceil_mode=False)
+    x = x.view(-1, 28 * 28)
+    x = x / 255.0
     return self.encoder(x.view(1, 784))
 
 
@@ -40,6 +45,7 @@ class SpatialVaeDecoder(nn.Module):
 
   def forward(self, x):
     x = self.decoder(x)
+    x = - (x - 1)
     x = x * 255
     x = x.view(28, 28)
     return x
