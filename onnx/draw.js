@@ -2,6 +2,7 @@
 // ----------------------------------------------------------------------------
 const paintCanvas = document.getElementById("input_canvas");
 const context = paintCanvas.getContext("2d");
+const clearButton = document.getElementById("clear-button");
 context.lineCap = "round";
 context.lineWidth = 40;
 let x = 0,
@@ -33,6 +34,7 @@ paintCanvas.addEventListener("mousedown", startDrawing);
 paintCanvas.addEventListener("mousemove", drawLine);
 paintCanvas.addEventListener("mouseup", stopDrawing);
 paintCanvas.addEventListener("mouseout", stopDrawing);
+clearButton.addEventListener("mousedown", clearCanvas);
 
 // Sliders code.
 // ----------------------------------------------------------------------------
@@ -892,6 +894,22 @@ loadingEncPromise = sess_enc.loadModel("onnx/svae_encoder.onnx");
 const sess_dec = new onnx.InferenceSession();
 loadingDecPromise = sess_dec.loadModel("onnx/svae_decoder.onnx");
 
+function theta_set() {
+  drawSvae();
+}
+
+function deltax_set() {
+  drawSvae();
+}
+
+var theta_checkbox = document.getElementById("theta_check");
+var deltax_checkbox = document.getElementById("deltax_check");
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, 280, 280);
+  context.clearRect(0, 0, 280, 280);
+}
+
 async function drawSvae() {
   await loadingEncPromise;
   await loadingDecPromise;
@@ -909,9 +927,18 @@ async function drawSvae() {
   std = math.exp(math.multiply(0.5, logvar));
   eps = math.matrix([randn(), randn(), randn(), randn(), randn()]);
   z = math.add(mu, math.dotMultiply(std, eps));
-  theta = math.subset(z, math.index(0));
-  delta_x0 = math.subset(z, math.index(1));
-  delta_x1 = math.subset(z, math.index(2));
+  if (theta_checkbox.checked) {
+    theta = 0;
+  } else {
+    theta = math.subset(z, math.index(0));
+  }
+  if (deltax_checkbox.checked) {
+    delta_x0 = 0;
+    delta_x1 = 0;
+  } else {
+    delta_x0 = math.subset(z, math.index(1));
+    delta_x1 = math.subset(z, math.index(2));
+  }
   z = math.subset(z, math.index([3, 4]));
   console.log(mu[0]);
 

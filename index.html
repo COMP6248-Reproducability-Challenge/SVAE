@@ -28,6 +28,10 @@
       height="28"
       style="border: 1px solid #d3d3d3;"
     ></canvas>
+    <label for="theta_check">Theta:</label>
+    <input type="checkbox" id="theta_check" unchecked onclick="theta_set()" />
+    <label for="myCheck2">Delta:</label>
+    <input type="checkbox" id="deltax_check" unchecked onclick="deltax_set()" />
     <input
       type="range"
       min="0"
@@ -52,6 +56,9 @@
       class="slider"
       id="delta_x1_slider"
     />
+    <div class="button" id="clear-button" style="margin: 0 auto;">
+      CLEAR
+    </div>
     <script src="onnx/draw.js"></script>
 
     <script>
