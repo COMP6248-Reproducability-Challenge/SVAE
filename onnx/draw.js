@@ -125,6 +125,9 @@ async function drawSvae() {
   theta = math.subset(z, math.index(0))
   delta_x0 = math.subset(z, math.index(1))
   delta_x1 = math.subset(z, math.index(2))
+  // theta = 0
+  // delta_x0 = 0
+  // delta_x1 = 0
   z = math.subset(z, math.index([3, 4]))
   console.log(mu[0])
 
