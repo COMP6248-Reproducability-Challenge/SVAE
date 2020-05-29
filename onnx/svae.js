@@ -5,9 +5,9 @@
 // function randn() {
 //   var u1 = Math.random();
 //   var u2 = Math.random();
-  
+
 //   var z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(Math.PI * 2 * u2);
-  
+
 //   return z0;
 // }
 
