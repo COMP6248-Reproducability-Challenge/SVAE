@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="onnx/styles.css" />
+    <title>Spatial VAE</title>
     <script src="onnx/svae.js" defer="true"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/7.0.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/onnxjs/dist/onnx.min.js"></script>
@@ -11,10 +12,17 @@
       src="https://code.jquery.com/jquery-3.5.1.min.js"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js "
+      integrity="sha256-XF29CBwU1MWLaGEnsELogU6Y6rcc5nCkhhx89nFMIDQ="
+      crossorigin=" anonymous "
+    ></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <!-- <script src="https://d3js.org/d3.v4.js"></script> -->
   </head>
 
   <body>
+    <h1>Online Spatial VAE</h1>
     <div id="my_dataviz"></div>
     <canvas
       id="input_canvas"
@@ -28,37 +36,52 @@
       height="28"
       style="border: 1px solid #d3d3d3;"
     ></canvas>
-    <label for="theta_check">Theta:</label>
-    <input type="checkbox" id="theta_check" unchecked onclick="theta_set()" />
-    <label for="myCheck2">Delta:</label>
-    <input type="checkbox" id="deltax_check" unchecked onclick="deltax_set()" />
-    <input
-      type="range"
-      min="0"
-      max="360"
-      value="180"
-      class="slider"
-      id="theta_slider"
-    />
-    <input
-      type="range"
-      min="-20"
-      max="20"
-      value="0"
-      class="slider"
-      id="delta_x0_slider"
-    />
-    <input
-      type="range"
-      min="-20"
-      max="20"
-      value="0"
-      class="slider"
-      id="delta_x1_slider"
-    />
-    <div class="button" id="clear-button" style="margin: 0 auto;">
+    <div style="margin: 0 auto;">
+      <label for="theta_check">Theta:</label>
+      <input type="checkbox" id="theta_check" unchecked onclick="theta_set()" />
+      <label for="myCheck2">Delta:</label>
+      <input
+        type="checkbox"
+        id="deltax_check"
+        unchecked
+        onclick="deltax_set()"
+      />
+    </div>
+    <div style="margin: 0 auto;">
+      <label for="theta_slider">Rotate:</label>
+      <input
+        type="range"
+        min="0"
+        max="360"
+        value="180"
+        class="slider"
+        id="theta_slider"
+      />
+      <label for="delta_x0_slider">Move up:</label>
+      <input
+        type="range"
+        min="-20"
+        max="20"
+        value="0"
+        class="slider"
+        id="delta_x0_slider"
+      />
+      <label for="delta_x1_slider">Move right:</label>
+      <input
+        type="range"
+        min="-20"
+        max="20"
+        value="0"
+        class="slider"
+        id="delta_x1_slider"
+      />
+    </div>
+    <div class="button" id="clear-button">
       CLEAR
     </div>
+    <!-- <div data-box="contanier">
+      <canvas id="myChart" width="300" height="200"></canvas>
+    </div> -->
     <script src="onnx/draw.js"></script>
 
     <script>

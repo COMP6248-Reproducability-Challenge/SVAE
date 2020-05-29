@@ -910,6 +910,78 @@ function clearCanvas() {
   context.clearRect(0, 0, 280, 280);
 }
 
+// a = -1;
+// b = 1;
+// n = 100;
+// var i,
+//   space_range = Array(n);
+// n--;
+// for (i = n; i >= 0; i--) {
+//   space_range[i] = (i * b + (n - i) * a) / n;
+// }
+
+// function gaussian(x, mean, sigma) {
+//   var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
+//     x = (x - mean) / sigma;
+//   return (gaussianConstant * Math.exp(-0.5 * x * x)) / sigma;
+// }
+
+// data_in = Array(n);
+// for (var h = 0; h < n; h++) {
+//   data_in[h] = gaussian(space_range[h], 0, 1);
+// }
+// let data = data_in;
+
+// var ctx2 = document.getElementById("myChart").getContext("2d");
+// var myChart = new Chart(ctx2, {
+//   // type: "bar ",
+//   type: "line",
+//   data: {
+//     labels: [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//     datasets: [
+//       {
+//         label: "Gaussian Plot",
+//         data: data,
+//         backgroundColor: [
+//           "rgba(255, 99, 132, 0.2)",
+//           "rgba(54, 162, 235, 0.2)",
+//           "rgba(255, 206, 86, 0.2)",
+//           "rgba(75, 192, 192, 0.2)",
+//           "rgba(153, 102, 255, 0.2)",
+//           "rgba(255, 159, 64, 0.2)",
+//         ],
+//         borderColor: [
+//           "rgba(255,99,132,1)",
+//           "rgba(54, 162, 235, 1)",
+//           "rgba(255, 206, 86, 1)",
+//           "rgba(75, 192, 192, 1)",
+//           "rgba(153, 102, 255, 1)",
+//           "rgba(255, 159, 64, 1)",
+//         ],
+//         borderWidth: 1,
+//         fill: "start",
+//       },
+//     ],
+//   },
+//   options: {
+//     scales: {
+//       yAxes: [
+//         {
+//           ticks: {
+//             beginAtZero: true,
+//           },
+//         },
+//       ],
+//     },
+//     elements: {
+//       line: {
+//         tension: 0,
+//         // no smooth
+//       },
+//     },
+//   },
+// });
+
 async function drawSvae() {
   await loadingEncPromise;
   await loadingDecPromise;
@@ -940,7 +1012,10 @@ async function drawSvae() {
     delta_x1 = math.subset(z, math.index(2));
   }
   z = math.subset(z, math.index([3, 4]));
-  console.log(mu[0]);
+  // newData = Array(n);
+  // for (var h = 0; h < n; h++) {
+  //   newData[h] = gaussian(space_range[h], mu[0], std[0]);
+  // }
 
   // Transform coords.
   transform = math.matrix([
@@ -984,4 +1059,13 @@ async function drawSvae() {
   }
   image_data.data.set(buffer);
   ctx.putImageData(image_data, 0, 0);
+  // // update
+  // let flag = setInterval(() => {
+  //   //oldData = data.slice(1);
+  //   //oldData.push(newData);
+  //   //data = [].concat(oldData);
+  //   myChart.data.datasets[0].data = newData;
+  //   myChart.update(0);
+  //   // disable animation
+  // }, 1000);
 }
