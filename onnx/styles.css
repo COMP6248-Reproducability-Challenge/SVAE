@@ -1,4 +1,33 @@
-canvas {
+#input_canvas, #svae_out_canvas {
   width: 280px;
   height: 280px;
+  border-radius: 10px;
+  background-color: white;
+}
+
+#inputs .inputs_el {
+  display: flex;
+  justify-content: space-between;
+}
+
+#clearbtn {
+  margin: auto;
+}
+
+#inputs .inputs_el span {
+  display: block;
+}
+
+#inputs .inputs_el input {
+  display: block;
+}
+
+.distr {
+  width: 280px;
+  height: 100px;
+  margin: 60px;
+}
+
+#content {
+  display: flex;
 }
