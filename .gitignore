@@ -6,3 +6,5 @@ __pycache__/
 .env/
 data/*/
 log/
+lightning_logs/
+tmp/
