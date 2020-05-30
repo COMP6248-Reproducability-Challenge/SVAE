@@ -163,7 +163,7 @@ var theta_plot = new Chart(thetaPlotCtx, {
       }],
       yAxes: [{
         gridLines: {
-          drawBorder: false,
+          color: "rgba(0, 0, 0, 0)",
         },
         ticks: {
           display: false
@@ -212,7 +212,7 @@ var deltax_plot = new Chart(deltaxPlotCtx, {
       }],
       yAxes: [{
         gridLines: {
-          drawBorder: false,
+          color: "rgba(0, 0, 0, 0)",
         },
         ticks: {
           display: false
@@ -261,7 +261,7 @@ var z_plot = new Chart(zPlotCtx, {
       }],
       yAxes: [{
         gridLines: {
-          drawBorder: false,
+          color: "rgba(0, 0, 0, 0)",
         },
         ticks: {
           display: false
