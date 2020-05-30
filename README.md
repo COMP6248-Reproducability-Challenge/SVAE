@@ -1,35 +1,12 @@
-# Reproducibility Challenge - Stacked Capsule Autoencoders
+# Reproducibility Challenge - Spatial-VAE
 
-## Getting Started
+## Plotting
 
-The experiments were run in `Python 3.7`.
+To generate the plots in the report, run:
 
-```powershell
-# Clone the repository.
-git clone https://github.com/yannidd/reproducibility.git
-
-# (Optional) Create a new Python environment and activate it.
-# Windows:
-python -m venv .env
-.env\Scripts\activate.bat
-# Unix or MacOS:
-python3 -m venv .env
-source .env/bin/activate
-
-# Install the dependencies.
-# Windows:
-pip install -r requirements.txt
-# Unix or MacOS:
-pip3 install -r requirements.txt
+```bash
+python -m src.plot_elbos
+python -m src.generate_mnist_samples
+python -m src.generate_manifolds
+python -m src.generate_mf_plot
 ```
-
-## Spatial-VAE
-
-<p align="center">
-    <img src=".res/svae.svg">
-</p>
-
-## References
-
-[1] **Geometric Transformations** ([online](https://courses.cs.washington.edu/courses/csep576/11sp/pdf/Transformations.pdf))  
-Larry Zitnick.

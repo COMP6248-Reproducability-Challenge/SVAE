@@ -1,0 +1,23 @@
+\section{Introduction} \label{introduction}
+% The goal is to assess if the experiments are reproducible, and to determine if the conclusions of the paper are supported by your findings. Your results can be either positive (i.e. confirm reproducibility).
+
+% Essentially, think of your role as an inspector verifying the validity of the experimental results and conclusions of the paper.
+
+% A good reproducibility report, describes the target questions, the experimental methodology, the implementation details, provides analysis and, discusses findings and conclusions on the reproducibility of the paper. The result of the reproducibility study should NOT be a simple Pass / Fail outcome. The goal should be to identify which parts of the contribution can be reproduced, and at what cost in terms of resources (computation, time, people, development effort, etc). Other than briefly outlining the core ideas or approach of the original paper, there is no need to repeat information.
+
+% Ideally you should include a copy of your report in your git repository as this will serve as a useful guide for others.
+
+% You should make it clear to what extent you used existing code (e.g. that of the authors’ of your chosen paper) compared to your own code.
+
+%Set and describe the problem
+Common issues when training models using real images are the inconsistencies in the pose of the captured image. For example, a famous landmark could be captured by tourists from different angles, elevations and shifts in position, resulting in different looking images of the same object relative to a fixed position. When learning a low-dimensional latent representation of these images, these inconsistencies in the pose might be mixed up with the actual content of the image in the latent space.
+
+% This changing geometric pose problem can be found when observing planetary systems from different observatories around the world, studying scattered protein structures under electron microscopes and tracking moving objects (i.e. self-driving car reading a signal).
+
+% Describe the solution of the original paper
+Spatial-VAE (SVAE) is a variational autoencoder framework that seeks to learn the rotation and translation pose variables (or any other linear transformation) separately from the continuous latent space variables in an unsupervised manner. Unlike a vanilla\footnote{The standard VAE architecture is referred to as \textit{vanilla}.} VAE (VVAE), where the decoder outputs the whole image at once, the decoder of an SVAE outputs a single-pixel given the pixel's spatial coordinates. Apart from the normal latent variables of a VVAE, the encoder of an SVAE learns a set of transformation parameters with which the input pixel coordinates are transformed, thus ``explicitly disentangling the content from linear transformations'' of the input image.
+
+In this report, we reproduce the implementation of the NeurIPS 2019 paper - SpatialVAE, which attempts to learn the rotation and translation pose transformations and critique its reproducibility by comparing results and judging its difficulty. Although the authors provide code\footnote{Original implementation: https://github.com/tbepler/spatial-VAE.} for their paper, we reimplemented their work\footnote{Our implementation: https://github.com/COMP6248-Reproducability-Challenge/SVAE.} based on the paper alone using PyTorch and PyTorch Lightning.
+
+%Describe the structure of our paper.
+% In this report, we attempt to re-describe the implementations of the VAE as described in Section \ref{implandexp} and reconstruct the framework described from scratch in PyTorch\footnote{our codebase link} without referencing the original codebase. The reproduced results of the MNIST dataset and its pose transformed variants are then compared with the original in Section \ref{resultsandeval}. 

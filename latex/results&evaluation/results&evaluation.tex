@@ -1,0 +1,30 @@
+\section{Results \& Evaluation} \label{resultsandeval}
+A total of 36 networks were trained with total runtime of 54 hours. The VVAE models took approximately 0.5 hours each to train, while the SVAE models took significantly longer at approximately 2 hours. We trained the networks in parallel on 9 separate GPUs (Nvidia GTX 2070 and Nvidia P100) from Kaggle and Google Colab. % While they were able to handle MNIST, larger datasets would require more GPUS and/or more time to process, potentially becoming expensive.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[width=\textwidth]{"elbos.pdf"}
+    \end{center}
+    \caption{Comparison of ELBO logs of the VAE models on the MNIST flavours while varying the dimensions of the unstructured latent variables. The lines show training (solid) and testing (dashed) ELBO for the VVAE model (blue), SVAE model (green) and SVAE with $\theta=0$ and $\Delta \textbf{x}=0$ (orange).}
+    \label{fig:elbo}
+\end{figure}
+
+The ELBO logs of these runs are shown in Figure \ref{fig:elbo}. The plots quite closely resemble the images shown in Figure 2 in \cite{bepler2019spatialvae}. The performance of the SVAE is well highlighted when the latent space dimension is low, and even more so in the more challenging rotated MNIST and rotated & translated MNIST datasets. It becomes apparent that the positive effect of SVAE on ELBO diminishes as Z-D grows, and VVAE achieves similar results. Overall, the differences with the original results are marginal and could be the effect of a different random initialisation. 
+
+Similarly, the latent space manifolds of the models are reproduced in Figure \ref{fig:manifold} and seem to be in line with Figure 3 in \cite{bepler2019spatialvae}, confirming that the described framework is reproducible. The benefit of SVAE becomes apparent as it can capture the content of the heavily transformed MNIST datasets, while VVAE fails to do so.
+
+To make the benefit of SVAE more intuitive, we converted our model that was trained on the rotated \& translated MNIST dataset to the Open Neural Network Exchange (ONNX) format and deployed it in an interactive webpage\footnote{Interactive demo: https://comp6248-reproducability-challenge.github.io/SVAE/}. Handwritten digits can be drawn and linearly transformed using sliders, while the model generates stable samples that correct for these transformations.
+
+While the experiments and framework were well described allowing us to replicate it from scratch, the lack of specific model initializations and repeated runs on different random seed values prevented robust testing and prevented the measurement of uncertainty in the results.
+
+Additionally, their codebase seemed unwieldy and hard to follow due to the lack of good coding practices and sparse comments, making it difficult for people to understand the codebase along with the paper. Our codebase aimed to rewrite the entire codebase solely based on the original paper and \cite{kingma2014stochastic}, providing a closely matched structure and good practices, allowing the readers to better understand the work. Improved commenting on the structure and the maths, and Python docstrings were added to further aid users.
+
+% The  paper should clearly indicate the Github repository in the “COMP6248 Reproducability Challenge” organisation that accompanies the paper, which should contain the code used for the experiments in the report. 
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[width=\textwidth]{"manifolds.pdf"}
+    \end{center}
+    \caption{The latent space manifolds of the three models with Z-D=2, trained on the MNIST variants. The plots show the outputs of the decoders for uniform samples of the prior.}
+    \label{fig:manifold}
+\end{figure}

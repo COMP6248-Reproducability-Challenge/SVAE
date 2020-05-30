@@ -1,0 +1,46 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2019_conference,times}
+\input{setup&credits/math_commands}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{xurl}
+\usepackage{mathtools}
+
+\graphicspath{ {./img/} }
+
+\title{Explicitly disentangling image content from translation and rotation with spatial-VAE}
+
+\author{Yanislav Donchev Donchev, Joe Simon \& Pier Paolo Ippolito \\
+\texttt{\{ydd1g16,js23g16,ppi1u16\}@ecs.soton.ac.uk}
+}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+\maketitle
+% \begin{abstract}
+% %done pls review
+% Image generative models have become increasingly popular for performing supervised and unsupervised learning various imaging domains. Real-world images come with geometric pose transformations applied to them making it challenging for models to train on them. Different approaches have been taken to explicitly learn these transformations to make them pose invariant.
+% In this report, we reproduce the implementation of the NeurIPS 2019 paper, SpatialVAE which attempts to learn the rotation and translation pose transformations and critique its reproducibility by comparing results and judging its difficulty. 
+% % % Tag along summary of conclusion.
+
+
+% \end{abstract}
+
+% A good reproducibility report, describes the target questions, the experimental methodology, the implementation details, provides analysis and, discusses findings and conclusions on the reproducibility of the paper. The result of the reproducibility study should NOT be a simple Pass / Fail outcome. The goal should be to identify which parts of the contribution can be reproduced, and at what cost in terms of resources (computation, time, people, development effort, etc). Other than briefly outlining the core ideas or approach of the original paper, there is no need to repeat information.
+
+\input{introduction/introduction}
+
+\input{experimentation&analysis/experimentation&analysis}
+
+\input{results&evaluation/results&evaluation}
+
+\input{conclusion/conclusion}
+
+\bibliography{iclr2019_conference}
+\bibliographystyle{iclr2019_conference}
+
+\end{document}

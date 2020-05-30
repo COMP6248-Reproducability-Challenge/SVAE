@@ -1,0 +1,46 @@
+\section{Implementation Details} \label{impl}
+% The methods described can also be implemented/re-implemented according to the description in the paper. This is a higher bar for reproducibility, but may be helpful in detecting anomalies in the code, or shedding light on aspects of the implementation that affect results.
+
+The SVAE architecture (see Figure \ref{fig:arch}) is very similar to a VVAE with a few notable changes. First, the encoder models a few extra distributions that encode the transformation parameters, in addition to the traditional unconstrained latent variables. The sampling (or reparameterisation) is similar to a VVAE and uses the typical prior $\mathcal{N}(0, I)$ for the unconstrained latent variables $\textbf{z}$. Since it is likely to have prior knowledge of the transformations, a separate prior is defined for these. Due to the rotation of the image $\theta$ being bounded, the authors define an adjustment to the standard KL divergence (equation (3) in \cite{bepler2019spatialvae}). The biggest difference from a VVAE is in the decoder: instead of accepting only $\textbf{z}$, the decoder also takes a two-dimensional spatial pixel coordinate $\textbf{x}$, which has been linearly transformed based on the sampled latent space variables for rotation ($\theta$) and translation ($\Delta \textbf{x}$). The input to the decoder is the concatenated vector $(\textbf{z}, \textbf{x})$, where $\textbf{x} = (T(\theta, \Delta \textbf{x}) \cdot \textbf{x}^{\prime})_{1:2}$, and the transformation matrix and non-transformed spatial coordinates are defined in (\ref{eq:transf}) and (\ref{eq:coords}) respectively. This operation is done for a normalised meshgrid ($28 \times 28$ in the case of MNIST) to reconstruct the full image.
+
+\begin{equation}
+\label{eq:transf}
+T(\theta, \Delta \textbf{x}) = 
+\begin{bmatrix}
+cos(\theta) & -sin(\theta) & \Delta x_0\\
+sin(\theta) & cos(\theta) & \Delta x_1\\
+0 & 0 & 1
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+\label{eq:coords}
+\textbf{x}^{\prime} = 
+\begin{bmatrix}
+x_0 & x_1 & 1
+\end{bmatrix}^T
+\end{equation}
+
+where $x_0, x_1 \in [-1, 1]$.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[width=\textwidth]{"svae.pdf"}
+    \end{center}
+    \caption{Diagram representation of the spatial-VAE framework. The data flow is clearly defined to guide implementation. A notable difference from a VVAE is that the network outputs a single-pixel value $y$ instead of the full image, and the decoder takes in an extra input - the transformed spatial pixel coordinate $\textbf{x}$. The output is squished by a sigmoid.}
+    \label{fig:arch}
+\end{figure}
+
+% Additionally, in order to correctly implement the function to be optimised during training, different literature papers such as \cite{bepler2019learning} and \cite{kingma2014stochastic} have been analysed.
+
+\section{Experimental Methodology} \label{exp}
+
+To test their hypothesis -- can the network explicitly differentiate linear transformations from content -- the authors use the MNIST dataset and two variations of it. While the standard MNIST dataset provides a good baseline, the two additional variants -- rotated MNIST and rotated \& translated MNIST -- help in observing the network's performance on pose transformed images. The rotated MNIST has randomly sampled angles from $\mathcal{N}(0, \pi^2/16)$ applied to the images along with a small random translation from $\mathcal{N}(0, 1.4^2)$. The more challenging rotated \& translated MNIST dataset maintained the same degree of rotation but added a greater degree of translation, randomly sampled from $\mathcal{N}(0, 14^2)$. 
+
+The original paper also tests the framework on the \textit{Sloan Digital Sky Survey Galaxy Zoo}, and \textit{Single Particle Electron-Microscopy} to address the challenges mentioned in Section \ref{introduction}. This report focuses solely on experimentation on the MNIST dataset and its variants due to the size and GPU hardware requirements of the latter datasets.
+
+Three VAE models were tested for comparison: VVAE acting as a baseline, SVAE and SVAE with $\theta$ and $\Delta \textbf{x}$ set to zero. Four different latent dimensions Z-D were tested for each of the models above: Z-D $\in \{ 2, 3, 5, 10 \}$. The encoders and decoders are standard two-layer MLPs with 500 neural units each and tanh activations. 
+
+The SVAE employs the same parameters but it has three additional latent variables -- two that encode translation and one for rotation. It outputs a single probability to represent binary pixels. Its rotation prior for the regular MNIST is set to $\mathcal{N}(0, \pi^2/64)$, while the rotation prior is set to $\mathcal{N}(0, \pi^2/16)$ for the transformed MNIST datasets. The translation prior is set to $\mathcal{N}(0, 1.4^2)$ for the transformed datasets and set to a constant of zero for the regular MNIST. The second SVAE model with $\theta=0$ and $\Delta \textbf{x}=0$ is identical to the above model with the exception that the input coordinates $\textbf{x}^{\prime}$ are not transformed (i.e. multiplied by $I$).
+
+All models are trained with the ADAM optimiser, learning rate of 1-e4 and a minibatch size of 100. The loss function aims to maximise the Evidence Lower Bound (ELBO). Every combination was run for 200 epochs.

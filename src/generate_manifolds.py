@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from torchvision.utils import save_image
 
-from models.svae import SpatialVAE
-from models.vvae import VanillaVAE
+from src.models.svae import SpatialVAE
+from src.models.vvae import VanillaVAE
 
 
 def make_manifold(model, filename, lim=2, extra_z=False):

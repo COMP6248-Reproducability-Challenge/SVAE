@@ -1,0 +1,7 @@
+\section{Conclusion} \label{conclusion}
+
+Overall, the paper was written well allowing its results to be reproducible and the claims of the authors stood true -- the SVAE architecture successfully learns linear transformations of the input image, separate from the semantics. However this comes at a cost: the decoder has to be executed once for each pixel of the image, which significantly increases the runtime. Furthermore, if the claimed disentangling is not required in the application, a VVAE with a bigger latent space achieves a similar ELBO to that of the SVAE at a much lower computational cost. Additionally, an effort was put on to make the work more accessible and readable through the help of a rewritten codebase and a live interactive demo of the work.
+
+
+
+% You should make it clear to what extent you used existing code (e.g. that of the authors’ of your chosen paper) compared to your own code.
