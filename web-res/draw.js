@@ -392,8 +392,8 @@ function clearInput() {
   theta_slider.value = 180
   delta_x0_slider.value = 0
   delta_x1_slider.value = 0
-  theta_checkbox.checked = false
-  deltax_checkbox.checked = false
+  theta_checkbox.checked = true
+  deltax_checkbox.checked = true
   drawSvae();
 }
 // ----------------------------------------------------------------------------
