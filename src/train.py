@@ -9,7 +9,7 @@ from src.models.mnist_model import MnistModel
 
 
 def main():
-  parser = argparse.ArgumentParser(description='Process some integers.')
+  parser = argparse.ArgumentParser(description='Train Vanilla VAE.')
   parser.add_argument('--dataset', choices=['mnist', 'mnist_rotated', 'mnist_rotated_translated'], default='mnist', help='The dataset on which to train.')
   parser.add_argument('--n_hidden_units', type=int, default=500, help='Number of hidden units.')
   parser.add_argument('--n_hidden', type=int, default=1, help='Number of hidden layers.')

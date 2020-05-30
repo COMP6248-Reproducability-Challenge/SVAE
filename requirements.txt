@@ -1,5 +1,6 @@
-matplotlib==3.2.1
-notebook==6.0.3
-pytorch-lightning==0.7.3
-bokeh==2.0.2
-livelossplot==0.5.0
+numpy
+matplotlib
+notebook
+torch
+torchvision
+pytorch-lightning

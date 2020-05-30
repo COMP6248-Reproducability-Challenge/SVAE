@@ -1,35 +1,19 @@
-# Reproducibility Challenge - Stacked Capsule Autoencoders
+# Reproducibility Challenge - Spatial-VAE
 
-## Getting Started
+This branch contains an implementation of a vanilla VAE (VVAE).
 
-The experiments were run in `Python 3.7`.
+## Train a Model
 
-```powershell
-# Clone the repository.
-git clone https://github.com/yannidd/reproducibility.git
+To train a model with the default parameters run:
 
-# (Optional) Create a new Python environment and activate it.
-# Windows:
-python -m venv .env
-.env\Scripts\activate.bat
-# Unix or MacOS:
-python3 -m venv .env
-source .env/bin/activate
-
-# Install the dependencies.
-# Windows:
-pip install -r requirements.txt
-# Unix or MacOS:
-pip3 install -r requirements.txt
+```bash
+python -m src.train
 ```
 
-## Spatial-VAE
+To see the available options, run:
 
-<p align="center">
-    <img src=".res/svae.svg">
-</p>
+```bash
+python -m src.train --help
+```
 
-## References
-
-[1] **Geometric Transformations** ([online](https://courses.cs.washington.edu/courses/csep576/11sp/pdf/Transformations.pdf))  
-Larry Zitnick.
+After the model is trained, a state dict (a `.pt` file) and the loss log (a `.csv` file) will be stored in `model_logs/`. The name of the files is `<dataset>_<vvae>_<n_unconstrained>`.
