@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">
   <script src="svae.js" defer=true></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/7.0.0/math.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/onnxjs/dist/onnx.min.js"></script>
@@ -14,50 +15,49 @@
 </head>
 
 <body>
-  <div id='content'>
-    <div id='inputs'>
-      <div class='inputs_el'>
-        <canvas id="input_canvas" width="280" height="280" style="border:1px solid #d3d3d3;"></canvas>
-      </div>
-      <div class='inputs_el'>
-        <input type="button" id="clearbtn" value="Clear" onclick="clearInput()"> 
-      </div>
-      <div class='inputs_el'>
-        <span>Rotate</span>
+  <div id="wrapper">
+    <div id='content'>
+      <div class="instruct" id="instruct_in">Write an MNIST digit here.</div>
+      <div class="instruct" id="instruct_out">SVAE is loading...</div>
+      <div id='inputs'>
+        <div class='inputs_el'>
+          <canvas id="input_canvas" width="280" height="280" style="border:1px solid #d3d3d3;"></canvas>
+        </div>
+        <a href="" class="clearbtn" onclick="clearInput()">Clear</a>
         <input type="range" min="90" max="270" value="180" class="slider" id="theta_slider">
+        <input type="range" min="-20" max="20" value="0" class="slider" id="delta_x1_slider">
+        <input type="range" min="-20" max="20" value="0" class="slider" id="delta_x0_slider">
       </div>
-      <div class='inputs_el'>
-        <span>Translate X</span>
-          <input type="range" min="-20" max="20" value="0" class="slider" id="delta_x1_slider">
-      </div>
-      <div class='inputs_el'>
-        <span>Translate Y</span>
-          <input type="range" min="-20" max="20" value="0" class="slider" id="delta_x0_slider">
-      </div>
-    </div>
-    <div id='plots'>
-      <div class="distr">
+      <div class="distr" id='z_plot_wrapper'>
         <canvas id="z_plot" width="200" height="100"></canvas>
       </div>
-      <div class="distr">
+      <div class="distr" id='theta_plot_wrapper'>
         <canvas id="theta_plot" width="200" height="100"></canvas>
       </div>
-      <div class="distr">
+      <div class="distr" id='deltax_plot_wrapper'>
         <canvas id="deltax_plot" width="200" height="100"></canvas>
+      </div>    
+      <div id="theta_check_wr" class="pretty p-default p-round p-smooth">
+        <input type="checkbox" id="theta_check" onclick="drawSvae()" />
+        <div class="state p-primary">
+            <label></label>
+        </div>
       </div>
-    </div>
-    <div id='decoder_ctr'>
-      <input type="checkbox" id="theta_check" onclick="drawSvae()" />
-      <input type="checkbox" id="deltax_check" onclick="drawSvae()"/>
-    </div>
-    <div id='outputs'>
-      <canvas id="svae_out_canvas" width="28" height="28" style="border:1px solid #d3d3d3;"></canvas>
+      <div id="deltax_check_wr" class="pretty p-default p-round p-smooth">
+        <input type="checkbox" id="deltax_check" onclick="drawSvae()"/>
+        <div class="state p-primary">
+            <label></label>
+        </div>
+      </div>
+      <div id='outputs'>
+        <canvas id="svae_out_canvas" width="28" height="28" style="border:1px solid #d3d3d3;"></canvas>
+      </div>
     </div>
   </div>
   <script src="draw.js"></script>
 
   <script>
-    drawSvae()
+    clearInput()
   </script>
 </body>
 

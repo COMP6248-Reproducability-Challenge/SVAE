@@ -14,6 +14,7 @@ const startDrawing = event => {
 }
 const drawLine = event => {
   if (isMouseDown) {
+    document.getElementById("instruct_in").style.display = "none"
     const newX = event.offsetX;
     const newY = event.offsetY;
     context.beginPath();
@@ -133,7 +134,7 @@ var theta_plot = new Chart(thetaPlotCtx, {
     labels: labels,
     datasets: [{ 
         data: gauss(distr_x, 0, 0.2)._data,
-        borderColor: "#c45850",
+        borderColor: "#60cc8a",
         fill: false
       }
     ]
@@ -177,12 +178,12 @@ var deltax_plot = new Chart(deltaxPlotCtx, {
     labels: labels,
     datasets: [{ 
         data: gauss(distr_x, 0, 0.2)._data,
-        borderColor: "#c45850",
+        borderColor: "#71CFE8",
         fill: false
       }, 
       { 
         data: gauss(distr_x, 0, 0.2)._data,
-        borderColor: "#c45850",
+        borderColor: "#8989FF",
         fill: false
       }
     ]
@@ -226,12 +227,12 @@ var z_plot = new Chart(zPlotCtx, {
     labels: labels2,
     datasets: [{ 
         data: gauss(distr_x2, 0, 0.2)._data,
-        borderColor: "#c45850",
+        borderColor: "#DA9BE8",
         fill: false
       }, 
       { 
         data: gauss(distr_x2, 0, 0.2)._data,
-        borderColor: "#c45850",
+        borderColor: "#FFBFBC",
         fill: false
       }
     ]
@@ -385,6 +386,7 @@ async function drawSvae() {
 // Clear code.
 // ----------------------------------------------------------------------------
 function clearInput() {
+  document.getElementById("instruct_in").style.display = "block"
   context.clearRect(0, 0, 280, 280);
   theta_slider.value = 180
   delta_x0_slider.value = 0
