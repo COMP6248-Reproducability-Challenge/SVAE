@@ -63,7 +63,7 @@ After the model is trained, a state dict (a `.pt` file) and the loss log (a `.cs
 
 - report - contains the LaTeX source, and scripts for plotting the results; all logs are stored here.
 - gh-pages - contains scripts for converting the PyTorch model to ONNX and the html files for the interactive demo.
-- vvae - an implementation of a standard (vanilla) VAE, plus training scripts.
+- vanilla_vae - an implementation of a standard (vanilla) VAE, plus training scripts.
 
 ## References
 
