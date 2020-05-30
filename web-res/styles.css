@@ -1,0 +1,196 @@
+html, body {
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+#input_canvas, #svae_out_canvas {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 10px;
+  /* background-color: white; */
+}
+
+#input_canvas {
+  margin-top: 150px;
+}
+
+#svae_out_canvas {
+  margin-top: 150px;
+  margin-left: 1120px;
+}
+
+#inputs .inputs_el {
+  display: block;
+  position: absolute;
+}
+
+#clearbtn {
+  margin: auto;
+  position: absolute;
+}
+
+#inputs .inputs_el span {
+  display: block;
+}
+
+#inputs .inputs_el input {
+  display: block;
+}
+
+.distr {
+  position: absolute;
+  width: 280px;
+  height: 100px;
+}
+
+#wrapper {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#content {
+  margin: auto;
+  display: block;
+  width: 1400px;
+  height: 580px;
+  background-image: url(bg.svg);
+}
+
+/* Controls */
+input {
+  position: absolute;
+}
+
+#theta_slider {
+  margin-top: 455px;
+  margin-left: 111px;
+  width: 170px;
+}
+
+#delta_x1_slider {
+  margin-top: 495px;
+  margin-left: 111px;
+  width: 170px;
+}
+
+#delta_x0_slider {
+  margin-top: 535px;
+  margin-left: 111px;
+  width: 170px;
+}
+
+a.clearbtn {
+  position: absolute;
+  width: 100px;
+  height: 36px;
+  margin-top: 110px;
+  margin-left: 90px;
+  display:inline-block;
+  padding: 8px 20px;
+  border:1px solid #363636;
+  border-radius:4px;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-weight:300;
+  color:#000000;
+  text-align:center;
+  transition: all 0.2s;
+}
+
+a.clearbtn:hover {
+  color:#FFFFFF;
+  background-color:#363636;
+}
+
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  height: 2px; /* Specified height */
+  background: #9c9c9c; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 5px; /* Set a specific slider handle width */
+  height: 15px; /* Slider handle height */
+  background: rgb(22, 22, 22); /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 5px; /* Set a specific slider handle width */
+  height: 15px; /* Slider handle height */
+  background: rgb(22, 22, 22); /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+/* Distribution plots */
+.distr {
+  margin-left: 561px;
+}
+
+#theta_plot_wrapper {
+  margin-top: 220px;
+}
+
+#deltax_plot_wrapper {
+  margin-top: 440px;
+}
+
+/* Checkboxes */
+#theta_check_wr {
+  position: absolute;
+}
+
+#deltax_check_wr {
+  position: absolute;
+}
+
+#theta_check_wr {
+  margin-top: 283px !important;
+  margin-left: 975px !important;
+}
+
+#deltax_check_wr {
+  margin-top: 390px !important;
+  margin-left: 973px !important;
+}
+
+/* Instructions */
+.instruct {
+  position: absolute;
+  font-size: 9pt;
+}
+
+#instruct_in {
+  width: 280px;
+  text-align: center;
+  margin-top: 290px;
+  /* z-index: 100; */
+}
+
+#instruct_out {
+  width: 280px;
+  text-align: center;
+  margin-top: 290px;
+  margin-left: 1120px;
+}
+
+#discl {
+  color: rgb(238, 212, 217);
+}

@@ -1,4 +1,4 @@
-# Reproducibility Challenge - Stacked Capsule Autoencoders
+# Reproducibility Challenge - Spatial-VAE
 
 ## Getting Started
 
@@ -22,14 +22,3 @@ pip install -r requirements.txt
 # Unix or MacOS:
 pip3 install -r requirements.txt
 ```
-
-## Spatial-VAE
-
-<p align="center">
-    <img src=".res/svae.svg">
-</p>
-
-## References
-
-[1] **Geometric Transformations** ([online](https://courses.cs.washington.edu/courses/csep576/11sp/pdf/Transformations.pdf))  
-Larry Zitnick.
