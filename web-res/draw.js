@@ -48,11 +48,13 @@ theta_slider.oninput = function() {
   backCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
   backCtx.drawImage(paintCanvas, 0, 0);
   context.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+  context.save();
   context.setTransform(1,0,0,1,0,0);
   context.translate(140, 140);
   context.rotate(-delta_angle);
   context.translate(-140, -140);
   context.drawImage(backCanvas, 0, 0);
+  context.restore();
   drawSvae();
 } 
 
