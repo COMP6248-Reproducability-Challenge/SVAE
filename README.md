@@ -21,6 +21,7 @@ The experiments were run in `Python 3.7`. Start by installing PyTorch as per the
 ```bash
 # Clone the repository.
 git clone https://github.com/COMP6248-Reproducability-Challenge/SVAE.git
+cd SVAE
 
 # (Optional) Create a new Python environment and activate it.
 python3 -m venv .env
