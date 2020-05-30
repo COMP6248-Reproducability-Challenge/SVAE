@@ -13,6 +13,11 @@ class MnistModel(SpatialVAE):
   def __init__(self,
                dataset='mnist',
                **kwargs):
+    """See SpatialVAE for the other arguments.
+    Args:
+      dataset: string
+        One of 'mnist', 'mnist_rotated', 'mnist_rotated_translated'.
+    """
     super().__init__(**kwargs)
     if dataset in {'mnist', 'mnist_rotated', 'mnist_rotated_translated'}:
       self.dataset = dataset

@@ -10,15 +10,15 @@ from src.models.mnist_model import MnistModel
 
 def main():
   parser = argparse.ArgumentParser(description='Process some integers.')
-  parser.add_argument('--dataset', choices=['mnist', 'mnist_rotated', 'mnist_rotated_translated'], default='mnist', help='The dataset on which to train.')
-  parser.add_argument('--n_hidden_units', type=int, default=500, help='Number of hidden units.')
-  parser.add_argument('--n_hidden', type=int, default=1, help='Number of hidden layers.')
-  parser.add_argument('--n_unconstrained', type=int, default=2, help='Number of unconstrained latent variables.')
-  parser.add_argument('--no_rotation', action='store_true', help='Disable latent variabels for rotation.')
-  parser.add_argument('--no_translation', action='store_true', help='Disable latent variabels for translation.')
-  parser.add_argument('--n_epochs', type=int, default=200, help='Number of epochs to train for.')
-  parser.add_argument('--delta_x_prior', type=float, default=0.1, help='Standard deviation of translation latent variables')
-  parser.add_argument('--theta_prior', type=float, default=math.pi / 4, help='Standard deviation on rotation prior')
+  parser.add_argument('--dataset', choices=['mnist', 'mnist_rotated', 'mnist_rotated_translated'], default='mnist', help='The dataset on which to train (default mnist).')
+  parser.add_argument('--n_hidden_units', type=int, default=500, help='Number of units in hidden layers (default 500).')
+  parser.add_argument('--n_hidden', type=int, default=1, help='Number of hidden layers (default 1).')
+  parser.add_argument('--n_unconstrained', type=int, default=2, help='Number of unconstrained latent variables (default 2).')
+  parser.add_argument('--no_rotation', action='store_true', help='Disable latent variabels for rotation (default false).')
+  parser.add_argument('--no_translation', action='store_true', help='Disable latent variabels for translation  (default false).')
+  parser.add_argument('--n_epochs', type=int, default=200, help='Number of epochs to train for (default 200).')
+  parser.add_argument('--delta_x_prior', type=float, default=0.1, help='Standard deviation of translation latent variables (default 0.1).')
+  parser.add_argument('--theta_prior', type=float, default=math.pi / 4, help='Standard deviation on rotation prior (default pi / 4).')
   args = parser.parse_args()
 
   model = MnistModel(dataset=args.dataset,
